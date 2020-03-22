@@ -9,16 +9,25 @@ const IMG_WIDTH = 146;
 const IMG_HEIGHT = 204;
 const COL_WIDTH = IMG_WIDTH + 1;
 const CARD_STACKING_OFFSET = 40;
-
-const cards = [['Battle Hymn', 'Reaper King', 'Death or Glory'],
-                ['Mindless Automaton', 'Wizard Mentor']];
+const NUM_COLS = 8;
+const SPACE_COLUMNS = [...Array(NUM_COLS)].map(_ => []);
+const INITIAL_CARD_NAMES = [['Battle Hymn', 'Reaper King', 'Death or Glory'],
+                            ['Mindless Automaton', 'Wizard Mentor']];
+var nextId = 0;
+for (var i = 0; i < INITIAL_CARD_NAMES.length; i++) {
+  for (var name of INITIAL_CARD_NAMES[i]) {
+    SPACE_COLUMNS[i].push({name: name, cardId: nextId});
+    nextId++;
+  }
+}
+console.log(JSON.stringify(SPACE_COLUMNS));
 
 function Card(props) {
-  const [collectedProps, drag] = useDrag({
-    item: { type: "Card" },
+  const [_, drag] = useDrag({
+    item: { type: "Card", name: props.name, cardId: props.cardId },
   });
 
-  const imageURL = `https://api.scryfall.com/cards/named?format=image&exact=${encodeURI(props.cardName)}`;
+  const imageURL = `https://api.scryfall.com/cards/named?format=image&exact=${encodeURI(props.name)}`;
   return (
     <img
       ref={drag}
@@ -32,10 +41,26 @@ function Card(props) {
   );
 }
 
+function dropCard(clientOffset, card) {
+  for (var col = 0; col < SPACE_COLUMNS.length; col++) {
+    for (var i = 0; i < SPACE_COLUMNS[col].length; i++) {
+      if (SPACE_COLUMNS[col][i].cardId === card.cardId) {
+        SPACE_COLUMNS[col].splice(i, 1);
+      }
+    }
+  }
+
+  const newCol = Math.floor(clientOffset.x / COL_WIDTH);
+  const newStackIndex = Math.min(Math.floor(clientOffset.y / CARD_STACKING_OFFSET), SPACE_COLUMNS[newCol].length);
+
+  SPACE_COLUMNS[newCol].splice(newStackIndex, 0, {name: card.name, cardId: card.cardId});
+  console.log(JSON.stringify(SPACE_COLUMNS));
+}
+
 function Space(props) {
   const [{ mousePos }, drop] = useDrop({
     accept: "Card",
-    drop: (item, monitor) => alert(JSON.stringify(monitor.getClientOffset())),
+    drop: (item, monitor) => dropCard(monitor.getClientOffset(), item),
     collect: monitor => ({
       mousePos: monitor.getClientOffset(),
     }),
@@ -43,14 +68,15 @@ function Space(props) {
 
   const cardImages = [];
 
-  for (var col = 0; col < cards.length; col++) {
-    for (var i = 0; i < cards[col].length; i++) {
-      cardImages.push(<Card cardName={cards[col][i]} stackIndex={i} col={col} />);
+  for (var col = 0; col < SPACE_COLUMNS.length; col++) {
+    for (var i = 0; i < SPACE_COLUMNS[col].length; i++) {
+      const cardObj = SPACE_COLUMNS[col][i]
+      cardImages.push(<Card name={cardObj.name} cardId={cardObj.cardId} key={cardObj.cardId.toString()} col={col} stackIndex={i} />);
     }
   }
 
   return (
-    <div ref={drop} class="card-space">
+    <div ref={drop} className="card-space">
       {cardImages}
     </div>
   );
