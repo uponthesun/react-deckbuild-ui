@@ -1,46 +1,62 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import Backend from 'react-dnd-html5-backend';
+import { DndProvider } from 'react-dnd';
+import { useDrag, useDrop } from 'react-dnd'
+
+const IMG_WIDTH = 146;
+const IMG_HEIGHT = 204;
+const COL_WIDTH = IMG_WIDTH + 1;
+const CARD_STACKING_OFFSET = 40;
 
 const cards = [['Battle Hymn', 'Reaper King', 'Death or Glory'],
                 ['Mindless Automaton', 'Wizard Mentor']];
 
-class Card extends React.Component {
-  render() {
-    const imageURL = `https://api.scryfall.com/cards/named?format=image&exact=${encodeURI(this.props.cardName)}`;
-    return (
-      <img
-        src={imageURL} width="146" height="204"
-        style={{
-          position: "absolute",
-          top: `${40 * this.props.stackIndex}px`,
-          left: `${147 * this.props.col}px`,
-          zIndex: `${this.props.stackIndex}`
-        }} />
-    );
-  }
+function Card(props) {
+  const [collectedProps, drag] = useDrag({
+    item: { type: "Card" },
+  });
+
+  const imageURL = `https://api.scryfall.com/cards/named?format=image&exact=${encodeURI(props.cardName)}`;
+  return (
+    <img
+      ref={drag}
+      src={imageURL} width={IMG_WIDTH} height={IMG_HEIGHT}
+      style={{
+        position: "absolute",
+        top: `${CARD_STACKING_OFFSET * props.stackIndex}px`,
+        left: `${COL_WIDTH * props.col}px`,
+        zIndex: `${props.stackIndex}`
+      }} />
+  );
 }
 
-class Space extends React.Component {
-  renderCards(cards) {
-    const cardImages = [];
+function Space(props) {
+  const [{ mousePos }, drop] = useDrop({
+    accept: "Card",
+    drop: (item, monitor) => alert(JSON.stringify(monitor.getClientOffset())),
+    collect: monitor => ({
+      mousePos: monitor.getClientOffset(),
+    }),
+  })
 
-    for (var col = 0; col < cards.length; col++) {
-      for (var i = 0; i < cards[col].length; i++) {
-        cardImages.push(<Card cardName={cards[col][i]} stackIndex={i} col={col} />);
-      }
+  const cardImages = [];
+
+  for (var col = 0; col < cards.length; col++) {
+    for (var i = 0; i < cards[col].length; i++) {
+      cardImages.push(<Card cardName={cards[col][i]} stackIndex={i} col={col} />);
     }
-
-    return cardImages;
   }
 
-  render() {
-    return (
-      <div class="card-space">
-        {this.renderCards(cards)}
-      </div>
-    );
-  }
+  return (
+    <div ref={drop} class="card-space">
+      {cardImages}
+    </div>
+  );
 }
 
-ReactDOM.render(<Space />, document.getElementById('root'));
+ReactDOM.render(
+  <DndProvider backend={Backend}> <Space /> </DndProvider>,
+  document.getElementById('root')
+);
