@@ -139,7 +139,7 @@ function Board(props) {
 
 // Helper used by Board
 const dropCard = (boardState, clientOffset, card) => {
-  const newCol = Math.floor(clientOffset.x / COL_WIDTH);
+  const newCol = Math.min(Math.floor(clientOffset.x / COL_WIDTH), NUM_COLS - 1);
   const newIndexInCol = Math.floor(clientOffset.y / CARD_STACKING_OFFSET);
 
   boardState.moveCard(card.id, newCol, newIndexInCol);
