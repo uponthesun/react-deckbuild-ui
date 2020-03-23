@@ -51,10 +51,6 @@ class BoardState {
   }
 }
 
-// Figure out how to maintain this state inside Board component cleanly?
-//DND hooks force Board to be a function component
-const BOARD_STATE = new BoardState(INITIAL_CARD_NAMES);
-
 // Card react component - displays a single draggable card
 function Card(props) {
   const [_, drag] = useDrag({
@@ -79,14 +75,14 @@ function Card(props) {
 function Board(props) {
   const [{ mousePos }, drop] = useDrop({
     accept: "Card",
-    drop: (item, monitor) => dropCard(monitor.getClientOffset(), item.card),
+    drop: (item, monitor) => dropCard(props.boardState, monitor.getClientOffset(), item.card),
     collect: monitor => ({
       mousePos: monitor.getClientOffset(),
     }),
   })
 
   const cardImages = [];
-  const cardColumns = BOARD_STATE.cardColumns;
+  const cardColumns = props.boardState.cardColumns;
   for (var col = 0; col < cardColumns.length; col++) {
     for (var i = 0; i < cardColumns[col].length; i++) {
       const card = cardColumns[col][i]
@@ -105,11 +101,11 @@ function Board(props) {
 }
 
 // Helper used by Board
-const dropCard = (clientOffset, card) => {
+const dropCard = (boardState, clientOffset, card) => {
   const newCol = Math.floor(clientOffset.x / COL_WIDTH);
   const newIndexInCol = Math.floor(clientOffset.y / CARD_STACKING_OFFSET);
 
-  BOARD_STATE.moveCard(card.id, newCol, newIndexInCol);
+  boardState.moveCard(card.id, newCol, newIndexInCol);
 }
 
 // Card pool input components
@@ -124,7 +120,7 @@ class LoadInputButton extends React.Component {
   load() {
     const rawInput = document.getElementById(CARD_POOL_INPUT_ELEMENT_ID).value;
     const cardNames = rawInput.split("\n").map(line => line.trim());
-    BOARD_STATE.loadCardPool(cardNames);
+    this.props.topLevelContainer.setState({boardState: new BoardState(cardNames)});
   }
 
   render() {
@@ -134,11 +130,30 @@ class LoadInputButton extends React.Component {
   }
 }
 
+// Top-level container component to put everything together
+class TopLevelContainer extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      boardState: new BoardState(INITIAL_CARD_NAMES),
+    };
+  }
+
+  render() {
+    return (
+      [
+        <Board boardState={this.state.boardState} />,
+        <div> <CardPoolInput id={CARD_POOL_INPUT_ELEMENT_ID} /> </div>,
+        <LoadInputButton topLevelContainer={this} />,
+      ]
+    );
+  }
+}
+
 ReactDOM.render(
   <DndProvider backend={Backend}>
-    <Board />
-    <div> <CardPoolInput id={CARD_POOL_INPUT_ELEMENT_ID} /> </div>
-    <LoadInputButton />
+    <TopLevelContainer />
   </DndProvider>,
   document.getElementById('root')
 );
