@@ -13,13 +13,17 @@ const NUM_COLS = 8;
 const INITIAL_CARD_NAMES = ['Battle Hymn', 'Reaper King', 'Death or Glory', 'Mindless Automaton', 'Wizard Mentor'];
 
 class BoardState {
-  constructor(initialCards) {
+  constructor(cardNames) {
+    if (!cardNames) {
+      cardNames = [];
+    }
+    this.loadCardPool(cardNames);
+  }
+
+  loadCardPool(cardNames) {
     this.cardColumns = [...Array(NUM_COLS)].map(_ => []); // Initialize with NUM_COLS empty arrays
     this.nextId = 0;
-
-    if (initialCards) {
-      initialCards.forEach(c => this.addCard(c));
-    }
+    cardNames.forEach(c => this.addCard(c));
   }
 
   addCard(cardName) {
@@ -100,14 +104,41 @@ function Board(props) {
   );
 }
 
-function dropCard(clientOffset, card) {
+// Helper used by Board
+const dropCard = (clientOffset, card) => {
   const newCol = Math.floor(clientOffset.x / COL_WIDTH);
   const newIndexInCol = Math.floor(clientOffset.y / CARD_STACKING_OFFSET);
 
   BOARD_STATE.moveCard(card.id, newCol, newIndexInCol);
 }
 
+// Card pool input components
+const CARD_POOL_INPUT_ELEMENT_ID='card-pool-input'
+function CardPoolInput(props) {
+  return (
+    <textarea id={props.id} rows="5" cols="33"></textarea>
+  );
+}
+
+class LoadInputButton extends React.Component {
+  load() {
+    const rawInput = document.getElementById(CARD_POOL_INPUT_ELEMENT_ID).value;
+    const cardNames = rawInput.split("\n").map(line => line.trim());
+    BOARD_STATE.loadCardPool(cardNames);
+  }
+
+  render() {
+    return (
+      <input type="button" onClick={() => this.load()} value="Load cards" />
+    );
+  }
+}
+
 ReactDOM.render(
-  <DndProvider backend={Backend}> <Board /> </DndProvider>,
+  <DndProvider backend={Backend}>
+    <Board />
+    <div> <CardPoolInput id={CARD_POOL_INPUT_ELEMENT_ID} /> </div>
+    <LoadInputButton />
+  </DndProvider>,
   document.getElementById('root')
 );
