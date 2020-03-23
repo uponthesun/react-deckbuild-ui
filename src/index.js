@@ -9,8 +9,26 @@ const IMG_WIDTH = 146;
 const IMG_HEIGHT = 204;
 const COL_WIDTH = IMG_WIDTH + 1;
 const CARD_STACKING_OFFSET = 40;
-const NUM_COLS = 8;
+const NUM_COLS = 9; // TODO: make this consistent with css width
 const INITIAL_CARD_NAMES = ['Battle Hymn', 'Reaper King', 'Death or Glory', 'Mindless Automaton', 'Wizard Mentor'];
+
+const getCardData = async (cardName) => {
+  const url = `https://api.scryfall.com/cards/named?exact=${encodeURI(cardName)}`;
+  const response = await fetch(url);
+  const cardJson = await response.json();
+
+  var color_pile = cardJson['color_identity'].join('');
+  if (color_pile.length > 1) {
+    color_pile = 'M' // multicolor
+  } else if (color_pile.length === 0) {
+    color_pile = 'C' // colorless
+  }
+
+  return {
+    color_pile,
+    cmc: cardJson['cmc'],
+  }
+}
 
 class BoardState {
   constructor(cardNames) {
@@ -20,15 +38,21 @@ class BoardState {
     this.loadCardPool(cardNames);
   }
 
-  loadCardPool(cardNames) {
+  async loadCardPool(cardNames) {
     this.cardColumns = [...Array(NUM_COLS)].map(_ => []); // Initialize with NUM_COLS empty arrays
     this.nextId = 0;
     cardNames.forEach(c => this.addCard(c));
   }
 
-  addCard(cardName) {
-    this.cardColumns[0].push({name: cardName, id: this.nextId});
+  async addCard(cardName) {
+    const newCard = {
+      name: cardName,
+      id: this.nextId,
+    };
+    this.cardColumns[0].push(newCard);
     this.nextId++; // TODO: Do we need to worry about concurrency? I don't think so but not positive
+
+    getCardData(cardName).then(data => newCard.data = data);
   }
 
   moveCard(id, newCol, newIndexInCol) {
@@ -48,6 +72,18 @@ class BoardState {
     // add card to new position
     newIndexInCol = Math.min(newIndexInCol, this.cardColumns[newCol].length);
     this.cardColumns[newCol].splice(newIndexInCol, 0, cardToMove);
+  }
+
+  sortByCmc() {
+    const newCardColumns = [...Array(NUM_COLS)].map(_ => []);
+
+    for (var card of this.cardColumns.flat()) {
+      const col = Math.min(card.data.cmc, 7); // everything CMC 7 and up goes in one pile
+      newCardColumns[col].push(card);
+    }
+
+    this.cardColumns = newCardColumns;
+    return this;
   }
 }
 
@@ -130,6 +166,15 @@ class LoadInputButton extends React.Component {
   }
 }
 
+// Sort components
+function SortByCmcButton (props) {
+  return (
+    <input type="button"
+      onClick={() => props.topLevelContainer.setState({boardState: props.boardState.sortByCmc()})}
+      value="Sort by CMC" />
+  );
+}
+
 // Top-level container component to put everything together
 class TopLevelContainer extends React.Component {
   constructor(props) {
@@ -142,11 +187,13 @@ class TopLevelContainer extends React.Component {
 
   render() {
     return (
-      [
-        <Board boardState={this.state.boardState} />,
-        <div> <CardPoolInput id={CARD_POOL_INPUT_ELEMENT_ID} /> </div>,
-        <LoadInputButton topLevelContainer={this} />,
-      ]
+      <div>
+        <Board boardState={this.state.boardState} />
+        <CardPoolInput id={CARD_POOL_INPUT_ELEMENT_ID} />
+        <br />
+        <LoadInputButton topLevelContainer={this} />
+        <SortByCmcButton topLevelContainer={this} boardState={this.state.boardState} />
+      </div>
     );
   }
 }
