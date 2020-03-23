@@ -10,7 +10,8 @@ const IMG_HEIGHT = 204;
 const COL_WIDTH = IMG_WIDTH + 1;
 const CARD_STACKING_OFFSET = 40;
 const NUM_COLS = 9; // TODO: make this consistent with css width
-const INITIAL_CARD_NAMES = ['Battle Hymn', 'Reaper King', 'Death or Glory', 'Mindless Automaton', 'Wizard Mentor'];
+const INITIAL_CARD_NAMES = ['Battle Hymn', 'Reaper King', 'Death or Glory', 'Mindless Automaton',
+                            'Wizard Mentor', 'Crow Storm', "Gaea's Touch"];
 
 const getCardData = async (cardName) => {
   const url = `https://api.scryfall.com/cards/named?exact=${encodeURI(cardName)}`;
