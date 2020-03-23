@@ -38,5 +38,5 @@
   "devDependencies": {
     "gh-pages": "^2.2.0"
   },
-  "homepage": "https://uponthesun.github.io/deckbuilder"
+  "homepage": "https://uponthesun.github.io/react-deckbuild-ui"
 }
