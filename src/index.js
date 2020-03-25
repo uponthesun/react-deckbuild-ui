@@ -163,7 +163,10 @@ class LoadInputButton extends React.Component {
   load() {
     const rawInput = document.getElementById(CARD_POOL_INPUT_ELEMENT_ID).value;
     const cardNames = rawInput.split("\n").map(line => line.trim());
-    this.props.topLevelContainer.setState({boardState: new BoardState(cardNames, NUM_COLS)});
+    this.props.topLevelContainer.setState({
+      boardState: new BoardState(cardNames, NUM_COLS),
+      sideboardState: new BoardState([], 1)
+    });
   }
 
   render() {
@@ -173,11 +176,35 @@ class LoadInputButton extends React.Component {
   }
 }
 
+// Export button components
+const toCockatriceFormat = (maindeck, sideboard) => {
+  return maindeck.map(c => c.name).join("\n") +
+    "\n\n// Sideboard\n" +
+    sideboard.map(c => c.name).join("\n");
+}
+
+const writeToClipboardAndAlert = (text) => {
+  navigator.clipboard.writeText(text)
+    .then(() => alert(`Copied to clipboard:\n\n${text}`),
+      () => alert(`Failed to copy to clipboard`));
+}
+
+function ExportButton (props) {
+  return (
+    <input type="button"
+      onClick={() => {
+        const output = toCockatriceFormat(props.boardState.cardColumns.flat(), props.sideboardState.cardColumns.flat());
+        writeToClipboardAndAlert(output);
+      }}
+      value="Export to Cockatrice" />
+  );
+}
+
 // Sort components
 function SortByCmcButton (props) {
   return (
     <input type="button"
-      onClick={() => props.topLevelContainer.setState({boardState: props.boardState.sortByCmc()})}
+      onClick={() => props.topLevelContainer.setState({boardState: props.topLevelContainer.state.boardState.sortByCmc()})}
       value="Sort by CMC" />
   );
 }
@@ -200,7 +227,8 @@ class TopLevelContainer extends React.Component {
         <Board boardState={this.state.sideboardState} />
         <CardPoolInput id={CARD_POOL_INPUT_ELEMENT_ID} />
         <LoadInputButton topLevelContainer={this} />
-        <SortByCmcButton topLevelContainer={this} boardState={this.state.boardState} />
+        <SortByCmcButton topLevelContainer={this} />
+        <ExportButton boardState={this.state.boardState} sideboardState={this.state.sideboardState} />
       </div>
     );
   }
