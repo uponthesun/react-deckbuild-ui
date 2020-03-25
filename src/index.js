@@ -159,10 +159,19 @@ function CardPoolInput(props) {
   );
 }
 
+const isNumber = (text) => {
+  return !Number.isNaN(Number(text));
+}
+
 class LoadInputButton extends React.Component {
   load() {
     const rawInput = document.getElementById(CARD_POOL_INPUT_ELEMENT_ID).value;
-    const cardNames = rawInput.split("\n").map(line => line.trim());
+    // For now, just trim off quantities if present. TODO: actually use the quantities
+    const cardNames = rawInput.split("\n").map((line) => {
+      line = isNumber(line[0]) ? line.substring(line.indexOf(" ")) : line;
+      return line.trim();
+    }).filter(line => line.trim().length > 0);
+
     this.props.topLevelContainer.setState({
       boardState: new BoardState(cardNames, NUM_COLS),
       sideboardState: new BoardState([], 1)
