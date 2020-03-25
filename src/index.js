@@ -32,15 +32,16 @@ const getCardData = async (cardName) => {
 }
 
 class BoardState {
-  constructor(cardNames) {
+  constructor(cardNames, numCols) {
     if (!cardNames) {
       cardNames = [];
     }
+    this.numCols = numCols;
     this.loadCardPool(cardNames);
   }
 
   async loadCardPool(cardNames) {
-    this.cardColumns = [...Array(NUM_COLS)].map(_ => []); // Initialize with NUM_COLS empty arrays
+    this.cardColumns = [...Array(this.numCols)].map(_ => []); // Initialize with numCols empty arrays
     this.nextId = 0;
     cardNames.forEach(c => this.addCard(c));
   }
@@ -49,34 +50,38 @@ class BoardState {
     const newCard = {
       name: cardName,
       id: this.nextId,
+      currentBoard: this,
     };
     this.cardColumns[0].push(newCard);
     this.nextId++; // TODO: Do we need to worry about concurrency? I don't think so but not positive
 
     getCardData(cardName).then(data => newCard.data = data);
+    return newCard;
   }
 
-  moveCard(id, newCol, newIndexInCol) {
+  async moveCard(card, newCol, newIndexInCol) {
     // remove card from current position
     // TODO: could consider storing mapping of id to position to avoid for loop lookup
-    var cardToMove;
-    for (var col = 0; col < this.cardColumns.length; col++) {
-      const cardCol = this.cardColumns[col];
+    //var cardToMove;
+    const removeFrom = card.currentBoard;
+    for (var col = 0; col < removeFrom.cardColumns.length; col++) {
+      const cardCol = removeFrom.cardColumns[col];
       for (var i = 0; i < cardCol.length; i++) {
-        if (cardCol[i].id === id) {
-          cardToMove = cardCol[i];
+        if (cardCol[i].id === card.id) {
+          //cardToMove = cardCol[i];
           cardCol.splice(i, 1);
         }
       }
     }
 
-    // add card to new position
+    // add card to new position 
     newIndexInCol = Math.min(newIndexInCol, this.cardColumns[newCol].length);
-    this.cardColumns[newCol].splice(newIndexInCol, 0, cardToMove);
+    this.cardColumns[newCol].splice(newIndexInCol, 0, card);
+    card.currentBoard = this;
   }
 
   sortByCmc() {
-    const newCardColumns = [...Array(NUM_COLS)].map(_ => []);
+    const newCardColumns = [...Array(this.numCols)].map(_ => []);
 
     for (var card of this.cardColumns.flat()) {
       const col = Math.min(card.data.cmc, 7); // everything CMC 7 and up goes in one pile
@@ -130,8 +135,9 @@ function Board(props) {
     }
   }
 
+  const widthPx = COL_WIDTH * props.boardState.numCols;
   return (
-    <div ref={drop} className="card-space" style={{position: "relative"}}>
+    <div ref={drop} className="card-space" style={{position: "relative", width: `${widthPx}px`}}>
       {cardImages}
     </div>
   );
@@ -139,10 +145,10 @@ function Board(props) {
 
 // Helper used by Board
 const dropCard = (boardState, clientOffset, card) => {
-  const newCol = Math.min(Math.floor(clientOffset.x / COL_WIDTH), NUM_COLS - 1);
+  const newCol = Math.min(Math.floor(clientOffset.x / COL_WIDTH), boardState.numCols - 1);
   const newIndexInCol = Math.floor(clientOffset.y / CARD_STACKING_OFFSET);
 
-  boardState.moveCard(card.id, newCol, newIndexInCol);
+  boardState.moveCard(card, newCol, newIndexInCol);
 }
 
 // Card pool input components
@@ -157,7 +163,7 @@ class LoadInputButton extends React.Component {
   load() {
     const rawInput = document.getElementById(CARD_POOL_INPUT_ELEMENT_ID).value;
     const cardNames = rawInput.split("\n").map(line => line.trim());
-    this.props.topLevelContainer.setState({boardState: new BoardState(cardNames)});
+    this.props.topLevelContainer.setState({boardState: new BoardState(cardNames, NUM_COLS)});
   }
 
   render() {
@@ -182,7 +188,8 @@ class TopLevelContainer extends React.Component {
     super(props);
 
     this.state = {
-      boardState: new BoardState(INITIAL_CARD_NAMES),
+      boardState: new BoardState(INITIAL_CARD_NAMES, NUM_COLS),
+      sideboardState: new BoardState([], 1),
     };
   }
 
@@ -190,8 +197,8 @@ class TopLevelContainer extends React.Component {
     return (
       <div>
         <Board boardState={this.state.boardState} />
+        <Board boardState={this.state.sideboardState} />
         <CardPoolInput id={CARD_POOL_INPUT_ELEMENT_ID} />
-        <br />
         <LoadInputButton topLevelContainer={this} />
         <SortByCmcButton topLevelContainer={this} boardState={this.state.boardState} />
       </div>
