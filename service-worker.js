@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/react-deckbuild-ui/precache-manifest.aabdd14dc564b97180c3690e4184c0de.js"
+  "/react-deckbuild-ui/precache-manifest.9aaafdd8a40b305a6c01e2d6b9b8e798.js"
 );
 
 self.addEventListener('message', (event) => {
