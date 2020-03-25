@@ -8,8 +8,8 @@ import { useDrag, useDrop } from 'react-dnd'
 const IMG_WIDTH = 146;
 const IMG_HEIGHT = 204;
 const COL_WIDTH = IMG_WIDTH + 1;
-const CARD_STACKING_OFFSET = 40;
-const NUM_COLS = 9; // TODO: make this consistent with css width
+const CARD_STACKING_OFFSET = 25;
+const NUM_COLS = 8; // TODO: make this consistent with css width
 const INITIAL_CARD_NAMES = ['Battle Hymn', 'Reaper King', 'Death or Glory', 'Mindless Automaton',
                             'Wizard Mentor', 'Crow Storm', "Gaea's Touch"];
 
@@ -131,7 +131,7 @@ function Board(props) {
   }
 
   return (
-    <div ref={drop} className="card-space">
+    <div ref={drop} className="card-space" style={{position: "relative"}}>
       {cardImages}
     </div>
   );
