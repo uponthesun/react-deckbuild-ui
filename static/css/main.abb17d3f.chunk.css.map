@@ -1,0 +1,1 @@
+{"version":3,"sources":["index.css"],"names":[],"mappings":"AAAA,YACE,iBAAmB,CACnB,kBAAmB,CACnB,SAAY,CACZ,YAAa,CACb,YACF","file":"main.abb17d3f.chunk.css","sourcesContent":[".card-space {\n  border-color: black;\n  border-style: solid;\n  padding: 0px;\n  height: 600px;\n  width: 1176px;\n}\n"]}
