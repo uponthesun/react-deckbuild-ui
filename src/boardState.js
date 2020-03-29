@@ -11,10 +11,12 @@ export default class BoardState {
   async loadCardPool(cardNames) {
     this.cardColumns = [...Array(this.numCols)].map(_ => []); // Initialize with numCols empty arrays
     this.nextId = 0;
-    cardNames.forEach(c => this.addCard(c));
+    cardNames.forEach(c => this.createAndAddCard(c));
   }
 
-  async addCard(cardName) {
+  // Creates a new card object, including initializing it with Scryfall data and a unique ID,
+  // and adds it to this board.
+  async createAndAddCard(cardName) {
     const newCard = {
       name: cardName,
       id: this.nextId,
@@ -27,25 +29,38 @@ export default class BoardState {
     return newCard;
   }
 
-  async moveCard(card, newCol, newIndexInCol) {
-    // remove card from current position
+  // Adds the given card object to this board. Does not create a new card object.
+  // Can optionally specify where the new card should be inserted (defaults to bottom of first column).
+  addCard(card, newCol = 0, newIndexInCol = undefined) {
+    if (!newIndexInCol || newIndexInCol > this.cardColumns[newCol].length) {
+      newIndexInCol = this.cardColumns[newCol].length;
+    }
+
+    this.cardColumns[newCol].splice(newIndexInCol, 0, card);
+    card.currentBoard = this;
+  }
+
+  // Removes the given card from this board and returns it.
+  removeCard(card) {
     // TODO: could consider storing mapping of id to position to avoid for loop lookup
-    //var cardToMove;
-    const removeFrom = card.currentBoard;
-    for (var col = 0; col < removeFrom.cardColumns.length; col++) {
-      const cardCol = removeFrom.cardColumns[col];
+    for (var col = 0; col < this.cardColumns.length; col++) {
+      const cardCol = this.cardColumns[col];
       for (var i = 0; i < cardCol.length; i++) {
         if (cardCol[i].id === card.id) {
-          //cardToMove = cardCol[i];
           cardCol.splice(i, 1);
+          return card;
         }
       }
     }
 
-    // add card to new position 
-    newIndexInCol = Math.min(newIndexInCol, this.cardColumns[newCol].length);
-    this.cardColumns[newCol].splice(newIndexInCol, 0, card);
-    card.currentBoard = this;
+    throw "Tried to remove card, but it wasn't in this board: " + JSON.stringify(card);
+  }
+
+  // Moves a card into the specified position in this board. If it was in a different board previously,
+  // first removes it from that board.
+  async moveCard(card, newCol, newIndexInCol) {
+    card.currentBoard.removeCard(card);
+    this.addCard(card, newCol, newIndexInCol);
   }
 
   sortByCmc() {
