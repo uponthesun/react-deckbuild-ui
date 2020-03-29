@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import Backend from 'react-dnd-html5-backend';
 import { DndProvider } from 'react-dnd';
@@ -17,8 +17,11 @@ const INITIAL_CARD_NAMES = ['Battle Hymn', 'Reaper King', 'Death or Glory', 'Min
 
 // Card react component - displays a single draggable card
 function Card(props) {
-  const [_, drag] = useDrag({
+  const [{ isDragging }, drag] = useDrag({
     item: { type: "Card", card: props.card },
+    collect: monitor => ({
+      isDragging: monitor.isDragging()
+    })
   });
 
   const imageURL = `https://api.scryfall.com/cards/named?format=image&exact=${encodeURI(props.card.name)}`;
@@ -34,17 +37,34 @@ function Card(props) {
     props.topLevelContainer.setState(props.topLevelContainer.state);
   };
 
+  const [hoverVisible, setHoverVisible] = useState(false);
+  const hoverVisibility = (hoverVisible && !isDragging) ? 'visible' : 'hidden';
+
   return (
-    <img
-      ref={drag}
-      src={imageURL} width={IMG_WIDTH} height={IMG_HEIGHT}
-      onDoubleClick={() => moveToOtherBoard(props.card)}
-      style={{
-        position: "absolute",
-        top: `${props.top}px`,
-        left: `${props.left}px`,
-        zIndex: `${props.zIndex}`,
-      }} />
+    [
+      <img
+        src={imageURL} width={IMG_WIDTH * 2} height={IMG_HEIGHT * 2}
+        style={{
+          visibility: hoverVisibility,
+          position: "absolute",
+          top: `${props.top}px`,
+          left: `${props.left + IMG_WIDTH}px`,
+          zIndex: 999
+        }}
+      />,
+      <img
+        ref={drag}
+        src={imageURL} width={IMG_WIDTH} height={IMG_HEIGHT}
+        onDoubleClick={() => moveToOtherBoard(props.card)}
+        onMouseOver={() => setHoverVisible(true)}
+        onMouseLeave={() => setHoverVisible(false)}
+        style={{
+          position: "absolute",
+          top: `${props.top}px`,
+          left: `${props.left}px`,
+          zIndex: `${props.zIndex}`,
+        }} />
+    ]
   );
 }
 
