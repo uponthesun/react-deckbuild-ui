@@ -102,6 +102,14 @@ function SortByCmcButton (props) {
   );
 }
 
+function SortByColorButton (props) {
+  return (
+    <input type="button"
+      onClick={() => props.topLevelContainer.setState({boardState: props.topLevelContainer.state.boardState.sortByColor()})}
+      value="Sort by Color" />
+  );
+}
+
 // Top-level container component to put everything together
 class TopLevelContainer extends React.Component {
   constructor(props) {
@@ -122,6 +130,7 @@ class TopLevelContainer extends React.Component {
         <CardPoolInput id={CARD_POOL_INPUT_ELEMENT_ID} />
         <LoadInputButton inputElementId={CARD_POOL_INPUT_ELEMENT_ID} topLevelContainer={this} />
         <SortByCmcButton topLevelContainer={this} />
+        <SortByColorButton topLevelContainer={this} />
         <ExportButton boardState={this.state.boardState} sideboardState={this.state.sideboardState} />
       </div>
     );

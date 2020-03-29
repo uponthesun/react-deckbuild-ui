@@ -74,6 +74,24 @@ export default class BoardState {
     this.cardColumns = newCardColumns;
     return this;
   }
+
+  sortByColor() {
+    const newCardColumns = [...Array(this.numCols)].map(_ => []);
+
+    const colorColumns = ['L', 'W', 'U', 'B', 'R', 'G', 'C', 'M'];
+
+    const monocolorCards = this.cardColumns.flat().filter(c => c.data.color_pile !== 'M');
+    const multicolorCards = this.cardColumns.flat().filter(c => c.data.color_pile === 'M');
+    multicolorCards.sort((c1, c2) => c1.data.colors.localeCompare(c2.data.colors));
+
+    for (var card of [...monocolorCards, ...multicolorCards]) {
+      const col = colorColumns.indexOf(card.data.color_pile);
+      newCardColumns[col].push(card);
+    }
+
+    this.cardColumns = newCardColumns;
+    return this;
+  }
 }
 
 const getCardData = async (cardName) => {
@@ -81,15 +99,21 @@ const getCardData = async (cardName) => {
   const response = await fetch(url);
   const cardJson = await response.json();
 
-  var color_pile = cardJson['color_identity'].join('');
+  var colors = cardJson['colors'].join('');
+  var color_pile = colors;
   if (color_pile.length > 1) {
     color_pile = 'M' // multicolor
   } else if (color_pile.length === 0) {
-    color_pile = 'C' // colorless
+    colors = color_pile = 'C' // colorless
+  }
+
+  if (cardJson['type_line'].includes('Land')) {
+    color_pile = 'L';
   }
 
   return {
     color_pile,
+    colors,
     cmc: cardJson['cmc'],
   }
 }
