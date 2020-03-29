@@ -15,14 +15,34 @@ const isNumber = (text) => {
 }
 
 class LoadInputButton extends React.Component {
+  inputToCardNames(rawInput) {
+    const lines = rawInput.split("\n").filter(l => l.trim().length > 0);
+    const cardNames = [];
+
+    for (var line of lines) {
+      // MTG Arena text format has the set name in () after the card name. Remove that portion if present.
+      line = line.split('(')[0].trim();
+
+      var quantity = 1;
+      // If the line starts with a number, consume that part of the string and store in quantity
+      if (isNumber(line[0])) {
+        const i = line.indexOf(" ");
+        quantity = Number(line.substring(0, i));
+        line = line.substring(i).trim();
+      }
+
+      // The remaining portion of the string should be just the card name; add it n times
+      for (var n = 0; n < quantity; n++) {
+        cardNames.push(line);
+      }
+    }
+
+    return cardNames;
+  }
+
   load() {
     const rawInput = document.getElementById(this.props.inputElementId).value;
-    // For now, just trim off quantities if present. TODO: actually use the quantities
-    const cardNames = rawInput.split("\n").map((line) => {
-      line = isNumber(line[0]) ? line.substring(line.indexOf(" ")) : line;
-      return line.trim();
-    }).filter(line => line.trim().length > 0);
-
+    const cardNames = this.inputToCardNames(rawInput);
     const numCols = this.props.topLevelContainer.state.boardState.numCols;
     this.props.topLevelContainer.setState({
       boardState: new BoardState(cardNames, numCols),

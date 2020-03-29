@@ -117,7 +117,12 @@ function Instructions (props) {
       Large space is the maindeck, smaller space is the sideboard. <br />
       Drag and drop to move cards around. <br />
       Double-click a card to move it from the maindeck to sideboard or vice versa. <br />
-      "Load cards" format is one card name per line, or [quantity] [cardname] per line.
+      Multiple formats are supported for "Load cards", including MTG Arena. <br />
+      Valid example lines: <br />
+      Wizard Mentor <br />
+      1 Battle Hymn <br />
+      5 Forest <br />
+      1 Cogwork Assembler (AER) 145
     </div>
   );
 }
