@@ -1,22 +1,22 @@
 {
   "files": {
     "main.css": "/react-deckbuild-ui/static/css/main.9ea0f271.chunk.css",
-    "main.js": "/react-deckbuild-ui/static/js/main.1d3ca962.chunk.js",
-    "main.js.map": "/react-deckbuild-ui/static/js/main.1d3ca962.chunk.js.map",
+    "main.js": "/react-deckbuild-ui/static/js/main.d7b31767.chunk.js",
+    "main.js.map": "/react-deckbuild-ui/static/js/main.d7b31767.chunk.js.map",
     "runtime-main.js": "/react-deckbuild-ui/static/js/runtime-main.3af1b9fc.js",
     "runtime-main.js.map": "/react-deckbuild-ui/static/js/runtime-main.3af1b9fc.js.map",
-    "static/js/2.d8d538b0.chunk.js": "/react-deckbuild-ui/static/js/2.d8d538b0.chunk.js",
-    "static/js/2.d8d538b0.chunk.js.map": "/react-deckbuild-ui/static/js/2.d8d538b0.chunk.js.map",
+    "static/js/2.14c972ad.chunk.js": "/react-deckbuild-ui/static/js/2.14c972ad.chunk.js",
+    "static/js/2.14c972ad.chunk.js.map": "/react-deckbuild-ui/static/js/2.14c972ad.chunk.js.map",
     "index.html": "/react-deckbuild-ui/index.html",
-    "precache-manifest.0a38aa5dba64b2cbae2b5566a3202583.js": "/react-deckbuild-ui/precache-manifest.0a38aa5dba64b2cbae2b5566a3202583.js",
+    "precache-manifest.ad956e418309282d6bdda4e57066f949.js": "/react-deckbuild-ui/precache-manifest.ad956e418309282d6bdda4e57066f949.js",
     "service-worker.js": "/react-deckbuild-ui/service-worker.js",
     "static/css/main.9ea0f271.chunk.css.map": "/react-deckbuild-ui/static/css/main.9ea0f271.chunk.css.map",
-    "static/js/2.d8d538b0.chunk.js.LICENSE.txt": "/react-deckbuild-ui/static/js/2.d8d538b0.chunk.js.LICENSE.txt"
+    "static/js/2.14c972ad.chunk.js.LICENSE.txt": "/react-deckbuild-ui/static/js/2.14c972ad.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.3af1b9fc.js",
-    "static/js/2.d8d538b0.chunk.js",
+    "static/js/2.14c972ad.chunk.js",
     "static/css/main.9ea0f271.chunk.css",
-    "static/js/main.1d3ca962.chunk.js"
+    "static/js/main.d7b31767.chunk.js"
   ]
 }
