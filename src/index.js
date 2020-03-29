@@ -1,9 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
 import Backend from 'react-dnd-html5-backend';
 import { DndProvider } from 'react-dnd';
 import { useDrag, useDrop } from 'react-dnd'
+import './index.css';
+import BoardState from './boardState.js';
+import { CardPoolInput, LoadInputButton, ExportButton } from './importExport.js';
 
 const IMG_WIDTH = 146;
 const IMG_HEIGHT = 204;
@@ -12,86 +14,6 @@ const CARD_STACKING_OFFSET = 25;
 const NUM_COLS = 8; // TODO: make this consistent with css width
 const INITIAL_CARD_NAMES = ['Battle Hymn', 'Reaper King', 'Death or Glory', 'Mindless Automaton',
                             'Wizard Mentor', 'Crow Storm', "Gaea's Touch"];
-
-const getCardData = async (cardName) => {
-  const url = `https://api.scryfall.com/cards/named?exact=${encodeURI(cardName)}`;
-  const response = await fetch(url);
-  const cardJson = await response.json();
-
-  var color_pile = cardJson['color_identity'].join('');
-  if (color_pile.length > 1) {
-    color_pile = 'M' // multicolor
-  } else if (color_pile.length === 0) {
-    color_pile = 'C' // colorless
-  }
-
-  return {
-    color_pile,
-    cmc: cardJson['cmc'],
-  }
-}
-
-class BoardState {
-  constructor(cardNames, numCols) {
-    if (!cardNames) {
-      cardNames = [];
-    }
-    this.numCols = numCols;
-    this.loadCardPool(cardNames);
-  }
-
-  async loadCardPool(cardNames) {
-    this.cardColumns = [...Array(this.numCols)].map(_ => []); // Initialize with numCols empty arrays
-    this.nextId = 0;
-    cardNames.forEach(c => this.addCard(c));
-  }
-
-  async addCard(cardName) {
-    const newCard = {
-      name: cardName,
-      id: this.nextId,
-      currentBoard: this,
-    };
-    this.cardColumns[0].push(newCard);
-    this.nextId++; // TODO: Do we need to worry about concurrency? I don't think so but not positive
-
-    getCardData(cardName).then(data => newCard.data = data);
-    return newCard;
-  }
-
-  async moveCard(card, newCol, newIndexInCol) {
-    // remove card from current position
-    // TODO: could consider storing mapping of id to position to avoid for loop lookup
-    //var cardToMove;
-    const removeFrom = card.currentBoard;
-    for (var col = 0; col < removeFrom.cardColumns.length; col++) {
-      const cardCol = removeFrom.cardColumns[col];
-      for (var i = 0; i < cardCol.length; i++) {
-        if (cardCol[i].id === card.id) {
-          //cardToMove = cardCol[i];
-          cardCol.splice(i, 1);
-        }
-      }
-    }
-
-    // add card to new position 
-    newIndexInCol = Math.min(newIndexInCol, this.cardColumns[newCol].length);
-    this.cardColumns[newCol].splice(newIndexInCol, 0, card);
-    card.currentBoard = this;
-  }
-
-  sortByCmc() {
-    const newCardColumns = [...Array(this.numCols)].map(_ => []);
-
-    for (var card of this.cardColumns.flat()) {
-      const col = Math.min(card.data.cmc, 7); // everything CMC 7 and up goes in one pile
-      newCardColumns[col].push(card);
-    }
-
-    this.cardColumns = newCardColumns;
-    return this;
-  }
-}
 
 // Card react component - displays a single draggable card
 function Card(props) {
@@ -151,64 +73,6 @@ const dropCard = (boardState, clientOffset, card) => {
   boardState.moveCard(card, newCol, newIndexInCol);
 }
 
-// Card pool input components
-const CARD_POOL_INPUT_ELEMENT_ID='card-pool-input'
-function CardPoolInput(props) {
-  return (
-    <textarea id={props.id} rows="5" cols="33"></textarea>
-  );
-}
-
-const isNumber = (text) => {
-  return !Number.isNaN(Number(text));
-}
-
-class LoadInputButton extends React.Component {
-  load() {
-    const rawInput = document.getElementById(CARD_POOL_INPUT_ELEMENT_ID).value;
-    // For now, just trim off quantities if present. TODO: actually use the quantities
-    const cardNames = rawInput.split("\n").map((line) => {
-      line = isNumber(line[0]) ? line.substring(line.indexOf(" ")) : line;
-      return line.trim();
-    }).filter(line => line.trim().length > 0);
-
-    this.props.topLevelContainer.setState({
-      boardState: new BoardState(cardNames, NUM_COLS),
-      sideboardState: new BoardState([], 1)
-    });
-  }
-
-  render() {
-    return (
-      <input type="button" onClick={() => this.load()} value="Load cards" />
-    );
-  }
-}
-
-// Export button components
-const toCockatriceFormat = (maindeck, sideboard) => {
-  return maindeck.map(c => c.name).join("\n") +
-    "\n\n// Sideboard\n" +
-    sideboard.map(c => c.name).join("\n");
-}
-
-const writeToClipboardAndAlert = (text) => {
-  navigator.clipboard.writeText(text)
-    .then(() => alert(`Copied to clipboard:\n\n${text}`),
-      () => alert(`Failed to copy to clipboard`));
-}
-
-function ExportButton (props) {
-  return (
-    <input type="button"
-      onClick={() => {
-        const output = toCockatriceFormat(props.boardState.cardColumns.flat(), props.sideboardState.cardColumns.flat());
-        writeToClipboardAndAlert(output);
-      }}
-      value="Export to Cockatrice" />
-  );
-}
-
 // Sort components
 function SortByCmcButton (props) {
   return (
@@ -230,12 +94,13 @@ class TopLevelContainer extends React.Component {
   }
 
   render() {
+    const CARD_POOL_INPUT_ELEMENT_ID = 'card-pool-input';
     return (
       <div>
         <Board boardState={this.state.boardState} />
         <Board boardState={this.state.sideboardState} />
         <CardPoolInput id={CARD_POOL_INPUT_ELEMENT_ID} />
-        <LoadInputButton topLevelContainer={this} />
+        <LoadInputButton inputElementId={CARD_POOL_INPUT_ELEMENT_ID} topLevelContainer={this} />
         <SortByCmcButton topLevelContainer={this} />
         <ExportButton boardState={this.state.boardState} sideboardState={this.state.sideboardState} />
       </div>
