@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import Backend from 'react-dnd-html5-backend';
 import { DndProvider } from 'react-dnd';
@@ -15,25 +15,50 @@ const NUM_COLS = 8; // TODO: make this consistent with css width
 const INITIAL_CARD_NAMES = ['Battle Hymn', 'Reaper King', 'Death or Glory', 'Mindless Automaton',
                             'Wizard Mentor', 'Crow Storm', "Gaea's Touch"];
 
-// Card react component - displays a single draggable card
+// Card react component - displays a single draggable card. If you hover over the normal card image, 
+// also displays a larger version next to it.
 function Card(props) {
-  const [_, drag] = useDrag({
+  const [{ isDragging }, drag] = useDrag({
     item: { type: "Card", card: props.card },
+    collect: monitor => ({
+      isDragging: monitor.isDragging()
+    })
   });
 
   const imageURL = `https://api.scryfall.com/cards/named?format=image&exact=${encodeURI(props.card.name)}`;
 
+  const [hoverVisible, setHoverVisible] = useState(false);
+  const hoverVisibility = (hoverVisible && !isDragging) ? 'visible' : 'hidden';
+
   return (
-    <img
-      ref={drag}
-      src={imageURL} width={IMG_WIDTH} height={IMG_HEIGHT}
-      onDoubleClick={() => props.moveCardToOtherBoard(props.card)}
-      style={{
-        position: "absolute",
-        top: `${props.top}px`,
-        left: `${props.left}px`,
-        zIndex: `${props.zIndex}`,
-      }} />
+    [
+      // The normal version of the card.
+      <img
+        ref={drag}
+        src={imageURL} width={IMG_WIDTH} height={IMG_HEIGHT}
+        onDoubleClick={() => props.moveCardToOtherBoard(props.card)}
+        // We use onMouseMove here instead of onMouseOver because apparently onMouseOver will fire after
+        // you drag and drop the top card of a stack, leading to weird behavior.
+        onMouseMove={(e) => !hoverVisible && setHoverVisible(true)}
+        onMouseLeave={() => setHoverVisible(false)}
+        style={{
+          position: "absolute",
+          top: `${props.top}px`,
+          left: `${props.left}px`,
+          zIndex: `${props.zIndex}`,
+        }} />,
+      // The larger "preview" image - only visible when hovering over the normal version of the card.
+      <img
+        src={imageURL} width={IMG_WIDTH * 2} height={IMG_HEIGHT * 2}
+        style={{
+          visibility: hoverVisibility,
+          position: "absolute",
+          top: `${props.top}px`,
+          left: `${props.left + IMG_WIDTH}px`,
+          zIndex: 999
+        }}
+      />,
+    ]
   );
 }
 
