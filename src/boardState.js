@@ -1,6 +1,7 @@
 // Manages state of a "board". Purely a logical representation, doesn't know about React components.
 export default class BoardState {
-  constructor(cardNames, numCols) {
+  constructor(cardLoader, cardNames, numCols) {
+    this.cardLoader = cardLoader;
     if (!cardNames) {
       cardNames = [];
     }
@@ -10,22 +11,16 @@ export default class BoardState {
 
   async loadCardPool(cardNames) {
     this.cardColumns = [...Array(this.numCols)].map(_ => []); // Initialize with numCols empty arrays
-    this.nextId = 0;
     cardNames.forEach(c => this.createAndAddCard(c));
   }
 
   // Creates a new card object, including initializing it with Scryfall data and a unique ID,
   // and adds it to this board.
   async createAndAddCard(cardName) {
-    const newCard = {
-      name: cardName,
-      id: this.nextId,
-      currentBoard: this,
-    };
+    const newCard = this.cardLoader.getCardData(cardName);
+    newCard.currentBoard = this;
     this.cardColumns[0].push(newCard);
-    this.nextId++; // TODO: Do we need to worry about concurrency? I don't think so but not positive
 
-    getCardData(cardName).then(data => newCard.data = data);
     return newCard;
   }
 
@@ -98,37 +93,3 @@ export default class BoardState {
   }
 }
 
-const getCardData = async (cardName) => {
-  const url = `https://api.scryfall.com/cards/named?exact=${encodeURI(cardName)}`;
-  const response = await fetch(url);
-  var cardJson = await response.json();
-
-  try {
-    // If double-faced card, some of the fields we need will be on the faces instead.
-    // Add all the fields from the front face to the top-level object.
-    if ('card_faces' in cardJson) {
-      Object.assign(cardJson, cardJson['card_faces'][0]);
-    }
-
-    var colors = cardJson['colors'].join('');
-    var color_pile = colors;
-    if (color_pile.length > 1) {
-      color_pile = 'M' // multicolor
-    } else if (color_pile.length === 0) {
-      colors = color_pile = 'C' // colorless
-    }
-
-    if (cardJson['type_line'].includes('Land')) {
-      color_pile = 'L';
-    }
-
-    return {
-      color_pile,
-      colors,
-      cmc: cardJson['cmc'],
-    }
-  } catch (e) {
-    console.error(`Error parsing card data: ${e}. Card JSON: ${JSON.stringify(cardJson)}`);
-    throw e;
-  }
-}
