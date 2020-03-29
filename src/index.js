@@ -110,6 +110,18 @@ function SortByColorButton (props) {
   );
 }
 
+// Instructions component
+function Instructions (props) {
+  return (
+    <div  style={{float: 'right'}}>
+      Large space is the maindeck, smaller space is the sideboard. <br />
+      Drag and drop to move cards around. <br />
+      Double-click a card to move it from the maindeck to sideboard or vice versa. <br />
+      "Load cards" format is one card name per line, or [quantity] [cardname] per line.
+    </div>
+  );
+}
+
 // Top-level container component to put everything together
 class TopLevelContainer extends React.Component {
   constructor(props) {
@@ -132,6 +144,7 @@ class TopLevelContainer extends React.Component {
         <SortByCmcButton topLevelContainer={this} />
         <SortByColorButton topLevelContainer={this} />
         <ExportButton boardState={this.state.boardState} sideboardState={this.state.sideboardState} />
+        <Instructions />
       </div>
     );
   }
