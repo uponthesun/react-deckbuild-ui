@@ -81,6 +81,7 @@ function Board(props) {
   return (
     <div ref={drop} className="card-space" style={{position: "relative", width: `${widthPx}px`}}>
       {cardImages}
+      <div style={{position: "absolute", bottom: "5px", right: "5px"}}>{props.boardState.numCards()} cards</div>
     </div>
   );
 }
