@@ -1,10 +1,10 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "154e12dfc77c569b1754c70bf08a8a40",
+    "revision": "56c20aff76c8266e5c9cb7398290d0be",
     "url": "/react-deckbuild-ui/index.html"
   },
   {
-    "revision": "8e9499ecd23b308ed163",
+    "revision": "50fd4b8153e8953480ac",
     "url": "/react-deckbuild-ui/static/css/main.9ea0f271.chunk.css"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/react-deckbuild-ui/static/js/2.14c972ad.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "8e9499ecd23b308ed163",
-    "url": "/react-deckbuild-ui/static/js/main.f08a4c0a.chunk.js"
+    "revision": "50fd4b8153e8953480ac",
+    "url": "/react-deckbuild-ui/static/js/main.b209f96b.chunk.js"
   },
   {
     "revision": "2c2c8309474af146de74",
