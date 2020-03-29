@@ -121,20 +121,10 @@ class TopLevelContainer extends React.Component {
   constructor(props) {
     super(props);
 
-    this.moveCardToMainboard = this.moveCardToMainboard.bind(this);
-    this.moveCardToSideboard = this.moveCardToSideboard.bind(this);
     this.state = {
       boardState: new BoardState(INITIAL_CARD_NAMES, NUM_COLS),
       sideboardState: new BoardState([], 1),
     };
-  }
-
-  moveCardToSideboard(card) {
-    this.moveCardToOtherBoard(card, this.state.boardState, this.state.sideboardState);
-  }
-
-  moveCardToMainboard(card) {
-    this.moveCardToOtherBoard(card, this.state.sideboardState, this.state.boardState);
   }
   
   moveCardToOtherBoard(card, board, otherBoard) {
@@ -146,10 +136,17 @@ class TopLevelContainer extends React.Component {
 
   render() {
     const CARD_POOL_INPUT_ELEMENT_ID = 'card-pool-input';
+    const moveCardToSideboard = (card) => {
+      this.moveCardToOtherBoard(card, this.state.boardState, this.state.sideboardState);
+    }
+    const moveCardToMainboard = (card) => {
+      this.moveCardToOtherBoard(card, this.state.sideboardState, this.state.boardState);
+    }
+    
     return (
       <div>
-        <Board boardState={this.state.boardState} moveCardToOtherBoard={this.moveCardToSideboard} />
-        <Board boardState={this.state.sideboardState} moveCardToOtherBoard={this.moveCardToMainboard} />
+        <Board boardState={this.state.boardState} moveCardToOtherBoard={moveCardToSideboard} />
+        <Board boardState={this.state.sideboardState} moveCardToOtherBoard={moveCardToMainboard} />
         <CardPoolInput id={CARD_POOL_INPUT_ELEMENT_ID} />
         <LoadInputButton inputElementId={CARD_POOL_INPUT_ELEMENT_ID} topLevelContainer={this} />
         <SortByCmcButton topLevelContainer={this} />
