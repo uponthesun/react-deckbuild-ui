@@ -56,7 +56,9 @@ function Card(props) {
         ref={drag}
         src={imageURL} width={IMG_WIDTH} height={IMG_HEIGHT}
         onDoubleClick={() => moveToOtherBoard(props.card)}
-        onMouseOver={() => setHoverVisible(true)}
+        // We use onMouseMove here instead of onMouseOver because apparently onMouseOver will fire after
+        // you drag and drop the top card of a stack, leading to weird behavior.
+        onMouseMove={(e) => !hoverVisible && setHoverVisible(true)}
         onMouseLeave={() => setHoverVisible(false)}
         style={{
           position: "absolute",
