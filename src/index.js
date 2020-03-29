@@ -23,22 +23,11 @@ function Card(props) {
 
   const imageURL = `https://api.scryfall.com/cards/named?format=image&exact=${encodeURI(props.card.name)}`;
 
-  // Moves the card from the current board to the other board when double-clicked.
-  const moveToOtherBoard = (card) => {
-    const maindeck = props.topLevelContainer.state.boardState;
-    const sideboard = props.topLevelContainer.state.sideboardState;
-    const destination = (card.currentBoard === maindeck) ? sideboard : maindeck;
-    card.currentBoard.removeCard(card);
-    destination.addCard(card);
-    // Hacky way to force everything to re-render; TODO: might want to refactor so this isn't needed
-    props.topLevelContainer.setState(props.topLevelContainer.state);
-  };
-
   return (
     <img
       ref={drag}
       src={imageURL} width={IMG_WIDTH} height={IMG_HEIGHT}
-      onDoubleClick={() => moveToOtherBoard(props.card)}
+      onDoubleClick={() => props.moveCardToOtherBoard(props.card)}
       style={{
         position: "absolute",
         top: `${props.top}px`,
@@ -72,7 +61,7 @@ function Board(props) {
         top={topOffset}
         left={leftOffset}
         zIndex={i}
-        topLevelContainer={props.topLevelContainer}
+        moveCardToOtherBoard={props.moveCardToOtherBoard}
       />);
     }
   }
@@ -138,13 +127,27 @@ class TopLevelContainer extends React.Component {
       sideboardState: new BoardState([], 1),
     };
   }
+  
+  moveCardToOtherBoard(card, board, otherBoard) {
+    board.removeCard(card);
+    otherBoard.addCard(card);
+    // Hacky way to force everything to re-render; TODO: make board states immutable and directly set the state with new versions
+    this.setState(this.state);
+  }
 
   render() {
     const CARD_POOL_INPUT_ELEMENT_ID = 'card-pool-input';
+    const moveCardToSideboard = (card) => {
+      this.moveCardToOtherBoard(card, this.state.boardState, this.state.sideboardState);
+    }
+    const moveCardToMainboard = (card) => {
+      this.moveCardToOtherBoard(card, this.state.sideboardState, this.state.boardState);
+    }
+    
     return (
       <div>
-        <Board boardState={this.state.boardState} topLevelContainer={this} />
-        <Board boardState={this.state.sideboardState} topLevelContainer={this} />
+        <Board boardState={this.state.boardState} moveCardToOtherBoard={moveCardToSideboard} />
+        <Board boardState={this.state.sideboardState} moveCardToOtherBoard={moveCardToMainboard} />
         <CardPoolInput id={CARD_POOL_INPUT_ELEMENT_ID} />
         <LoadInputButton inputElementId={CARD_POOL_INPUT_ELEMENT_ID} topLevelContainer={this} />
         <SortByCmcButton topLevelContainer={this} />
