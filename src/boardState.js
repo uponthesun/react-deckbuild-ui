@@ -97,23 +97,34 @@ export default class BoardState {
 const getCardData = async (cardName) => {
   const url = `https://api.scryfall.com/cards/named?exact=${encodeURI(cardName)}`;
   const response = await fetch(url);
-  const cardJson = await response.json();
+  var cardJson = await response.json();
 
-  var colors = cardJson['colors'].join('');
-  var color_pile = colors;
-  if (color_pile.length > 1) {
-    color_pile = 'M' // multicolor
-  } else if (color_pile.length === 0) {
-    colors = color_pile = 'C' // colorless
-  }
+  try {
+    // If double-faced card, some of the fields we need will be on the faces instead.
+    // Add all the fields from the front face to the top-level object.
+    if ('card_faces' in cardJson) {
+      Object.assign(cardJson, cardJson['card_faces'][0]);
+    }
 
-  if (cardJson['type_line'].includes('Land')) {
-    color_pile = 'L';
-  }
+    var colors = cardJson['colors'].join('');
+    var color_pile = colors;
+    if (color_pile.length > 1) {
+      color_pile = 'M' // multicolor
+    } else if (color_pile.length === 0) {
+      colors = color_pile = 'C' // colorless
+    }
 
-  return {
-    color_pile,
-    colors,
-    cmc: cardJson['cmc'],
+    if (cardJson['type_line'].includes('Land')) {
+      color_pile = 'L';
+    }
+
+    return {
+      color_pile,
+      colors,
+      cmc: cardJson['cmc'],
+    }
+  } catch (e) {
+    console.error(`Error parsing card data: ${e}. Card JSON: ${JSON.stringify(cardJson)}`);
+    throw e;
   }
 }
