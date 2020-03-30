@@ -6,6 +6,8 @@ import { useDrag, useDrop } from 'react-dnd'
 import './index.css';
 import BoardState from './boardState.js';
 import { CardPoolInput, LoadInputButton, ExportButton } from './importExport.js';
+import { LandAdder } from './landAdder.js';
+import CardLoader from './cardLoader.js';
 
 const IMG_WIDTH = 146;
 const IMG_HEIGHT = 204;
@@ -147,9 +149,11 @@ class TopLevelContainer extends React.Component {
   constructor(props) {
     super(props);
 
+    const cardLoader = new CardLoader();
     this.state = {
-      boardState: new BoardState(INITIAL_CARD_NAMES, NUM_COLS),
-      sideboardState: new BoardState([], 1),
+      cardLoader: cardLoader,
+      boardState: new BoardState(cardLoader, INITIAL_CARD_NAMES, NUM_COLS),
+      sideboardState: new BoardState(cardLoader, [], 1),
     };
   }
   
@@ -157,6 +161,16 @@ class TopLevelContainer extends React.Component {
     board.removeCard(card);
     otherBoard.addCard(card);
     // Hacky way to force everything to re-render; TODO: make board states immutable and directly set the state with new versions
+    this.setState(this.state);
+  }
+
+  addLand(landName, count) {
+    const currentBoard = this.state.boardState;
+    const cardLoader = this.state.cardLoader;
+    Array(count).fill(null).forEach(function() {
+      const card = cardLoader.getCardData(landName)
+      currentBoard.addCard(card)
+    });
     this.setState(this.state);
   }
 
@@ -178,6 +192,7 @@ class TopLevelContainer extends React.Component {
         <SortByCmcButton topLevelContainer={this} />
         <SortByColorButton topLevelContainer={this} />
         <ExportButton boardState={this.state.boardState} sideboardState={this.state.sideboardState} />
+        <LandAdder addLand={(land, count) => this.addLand(land, count)}/>
         <Instructions />
       </div>
     );
