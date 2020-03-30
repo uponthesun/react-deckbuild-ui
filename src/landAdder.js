@@ -1,9 +1,9 @@
-// This file contains components and logic related to importing and exporting from text formats.
+// This file contains a component for adding basic lands to the deck.
 
 import React from 'react';
 
 function LandAdder(props) {
-  const selectorId = props.id + '-selctor';
+  const selectorId = props.id + '-selector';
   const inputCountId = props.id + '-input-count';
 
   return (
