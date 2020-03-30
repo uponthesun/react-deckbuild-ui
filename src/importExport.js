@@ -17,9 +17,15 @@ const isNumber = (text) => {
 class LoadInputButton extends React.Component {
   inputToCardNames(rawInput) {
     const lines = rawInput.split("\n").filter(l => l.trim().length > 0);
-    const cardNames = [];
+    const [maindeckCardNames, sideboardCardNames] = [[], []];
+    var currentSection = maindeckCardNames;
 
     for (var line of lines) {
+      if (line.includes('Sideboard')) {
+        currentSection = sideboardCardNames;
+        continue;
+      }
+
       // MTG Arena text format has the set name in () after the card name. Remove that portion if present.
       line = line.split('(')[0].trim();
 
@@ -33,21 +39,22 @@ class LoadInputButton extends React.Component {
 
       // The remaining portion of the string should be just the card name; add it n times
       for (var n = 0; n < quantity; n++) {
-        cardNames.push(line);
+        currentSection.push(line);
       }
     }
 
-    return cardNames;
+    return [maindeckCardNames, sideboardCardNames];
   }
 
   load() {
     const rawInput = document.getElementById(this.props.inputElementId).value;
-    const cardNames = this.inputToCardNames(rawInput);
+    const [maindeckCardNames, sideboardCardNames] = this.inputToCardNames(rawInput);
+
     const numCols = this.props.topLevelContainer.state.boardState.numCols;
     const cardLoader = this.props.topLevelContainer.state.cardLoader;
     this.props.topLevelContainer.setState({
-      boardState: new BoardState(cardLoader, cardNames, numCols),
-      sideboardState: new BoardState(cardLoader, [], 1)
+      boardState: new BoardState(cardLoader, maindeckCardNames, numCols),
+      sideboardState: new BoardState(cardLoader, sideboardCardNames, 1)
     });
   }
 
