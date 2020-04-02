@@ -27,7 +27,8 @@ function Card(props) {
     })
   });
 
-  const imageURL = `https://api.scryfall.com/cards/named?format=image&exact=${encodeURI(props.card.name)}`;
+  //const imageURL = `https://api.scryfall.com/cards/named?format=image&exact=${encodeURI(props.card.name)}`;
+  const imageURL = props.card.data.imageUrl;
 
   const [hoverVisible, setHoverVisible] = useState(false);
   const hoverVisibility = (hoverVisible && !isDragging) ? 'visible' : 'hidden';
@@ -152,8 +153,8 @@ class TopLevelContainer extends React.Component {
     const cardLoader = new CardLoader();
     this.state = {
       cardLoader: cardLoader,
-      boardState: new BoardState(cardLoader, INITIAL_CARD_NAMES, NUM_COLS),
-      sideboardState: new BoardState(cardLoader, [], 1),
+      boardState: new BoardState(cardLoader,  NUM_COLS),
+      sideboardState: new BoardState(cardLoader, 1),
     };
   }
   

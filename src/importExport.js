@@ -50,15 +50,15 @@ class LoadInputButton extends React.Component {
     return [maindeckCardNames, sideboardCardNames];
   }
 
-  load() {
+  async load() {
     const rawInput = document.getElementById(this.props.inputElementId).value;
     const [maindeckCardNames, sideboardCardNames] = this.inputToCardNames(rawInput);
 
     const numCols = this.props.topLevelContainer.state.boardState.numCols;
     const cardLoader = this.props.topLevelContainer.state.cardLoader;
     this.props.topLevelContainer.setState({
-      boardState: new BoardState(cardLoader, maindeckCardNames, numCols),
-      sideboardState: new BoardState(cardLoader, sideboardCardNames, 1)
+      boardState: await BoardState.createBoard(cardLoader, maindeckCardNames, numCols),
+      sideboardState: await BoardState.createBoard(cardLoader, sideboardCardNames, 1)
     });
   }
 

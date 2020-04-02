@@ -4,16 +4,16 @@ export default class CardLoader {
     this.nextId = 0;
   }
   
-  getCardData(cardName) {
+  async getCardData(cardName) {
     const newCard = {
       name: cardName,
       id: this.nextId,
     };
     this.nextId++;   
-    this.getCardDataAsync(cardName).then(data => newCard.data = data);
+    newCard.data = await this.getCardDataAsync(cardName);
     return newCard;
   }
-  
+
   async getCardDataAsync(cardName) {
     const url = `https://api.scryfall.com/cards/named?exact=${encodeURI(cardName)}`;
     const response = await fetch(url);
@@ -42,6 +42,7 @@ export default class CardLoader {
         color_pile,
         colors,
         cmc: cardJson['cmc'],
+        imageUrl: cardJson['image_uris']['normal']
       }
     } catch (e) {
       console.error(`Error parsing card data: ${e}. Card JSON: ${JSON.stringify(cardJson)}`);
