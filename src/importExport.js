@@ -32,8 +32,12 @@ class LoadInputButton extends React.Component {
       var quantity = 1;
       // If the line starts with a number, consume that part of the string and store in quantity
       if (isNumber(line[0])) {
-        const i = line.indexOf(" ");
-        quantity = Number(line.substring(0, i));
+        const i = line.indexOf(' ');
+        var quantityPart = line.substring(0, i)
+        if (quantityPart.endsWith('x')) {
+          quantityPart = quantityPart.slice(0, -1); // trim off "x" in the case of "1x <cardname>"
+        }
+        quantity = Number(quantityPart);
         line = line.substring(i).trim();
       }
 
