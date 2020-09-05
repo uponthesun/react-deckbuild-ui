@@ -11,17 +11,17 @@ export default class BoardState {
 
   async loadCardPool(cardNames) {
     this.cardColumns = [...Array(this.numCols)].map(_ => []); // Initialize with numCols empty arrays
-    cardNames.forEach(c => this.createAndAddCard(c));
+    cardNames.forEach(c => this.createAndAddCards(c));
   }
 
   // Creates a new card object, including initializing it with Scryfall data and a unique ID,
   // and adds it to this board.
-  async createAndAddCard(cardName) {
-    const newCard = this.cardLoader.getCardData(cardName);
-    newCard.currentBoard = this;
-    this.cardColumns[0].push(newCard);
-
-    return newCard;
+  async createAndAddCards(cardInfo) {
+    for (var n = 0; n < cardInfo.quantity; n++) {
+      const newCard = this.cardLoader.getCardData(cardInfo.name, cardInfo.set);
+      newCard.currentBoard = this;
+      this.cardColumns[0].push(newCard);
+    }
   }
 
   // Adds the given card object to this board. Does not create a new card object.

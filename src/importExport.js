@@ -15,6 +15,32 @@ const isNumber = (text) => {
 }
 
 class LoadInputButton extends React.Component {
+  parseLine(line) {
+    var [part1, part2] = line.split('(');
+
+    var quantity, name;
+    // If the line starts with a number, consume that part of the string and store in quantity
+    if (isNumber(part1[0])) {
+      const i = part1.indexOf(' ');
+      var quantityPart = part1.substring(0, i)
+      if (quantityPart.endsWith('x')) {
+        quantityPart = quantityPart.slice(0, -1); // trim off "x" in the case of "1x <cardname>"
+      }
+      quantity = Number(quantityPart);
+      name = part1.substring(i).trim();
+    } else {
+      quantity = 1;
+      name = part1.trim();
+    }
+
+    var set = ''
+    if (part2) {
+      set = part2.split(')')[0].trim();
+    }
+
+    return {name, quantity, set};
+  }
+
   inputToCardNames(rawInput) {
     const lines = rawInput.split("\n").filter(l => l.trim().length > 0);
     const [maindeckCardNames, sideboardCardNames] = [[], []];
@@ -26,25 +52,7 @@ class LoadInputButton extends React.Component {
         continue;
       }
 
-      // MTG Arena text format has the set name in () after the card name. Remove that portion if present.
-      line = line.split('(')[0].trim();
-
-      var quantity = 1;
-      // If the line starts with a number, consume that part of the string and store in quantity
-      if (isNumber(line[0])) {
-        const i = line.indexOf(' ');
-        var quantityPart = line.substring(0, i)
-        if (quantityPart.endsWith('x')) {
-          quantityPart = quantityPart.slice(0, -1); // trim off "x" in the case of "1x <cardname>"
-        }
-        quantity = Number(quantityPart);
-        line = line.substring(i).trim();
-      }
-
-      // The remaining portion of the string should be just the card name; add it n times
-      for (var n = 0; n < quantity; n++) {
-        currentSection.push(line);
-      }
+      currentSection.push(this.parseLine(line));
     }
 
     return [maindeckCardNames, sideboardCardNames];
