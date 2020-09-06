@@ -12,6 +12,9 @@ export default class BoardState {
   async loadCardPool(cardNames, parentComponent) {
     this.cardColumns = [...Array(this.numCols)].map(_ => []); // Initialize with numCols empty arrays
     for (var name of cardNames) {
+      // TODO: A major refactor is needed to simplify state management. Not sure how best to it,
+      // but one option could be to merge this class with the Board react component. Until then,
+      // we need this manual refresh.
       this.createAndAddCards(name).then(value => {
         if (parentComponent) {
           parentComponent.setState({});

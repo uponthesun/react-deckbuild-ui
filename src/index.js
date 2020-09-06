@@ -162,7 +162,7 @@ class TopLevelContainer extends React.Component {
     board.removeCard(card);
     otherBoard.addCard(card);
     // Hacky way to force everything to re-render; TODO: make board states immutable and directly set the state with new versions
-    this.setState(this.state);
+    this.setState({});
   }
 
   async addLand(landName, count) {
