@@ -2,20 +2,30 @@
 export default class CardLoader {
   constructor() {
     this.nextId = 0;
+    this.cardDataCache = {};
   }
-  
-  getCardData(cardName) {
+
+  async getCardData(cardName, set = '') {
     const newCard = {
       name: cardName,
       id: this.nextId,
     };
     this.nextId++;   
-    this.getCardDataAsync(cardName).then(data => newCard.data = data);
+
+    if (!this.cardDataCache[cardName]) {
+      this.cardDataCache[cardName] = {};
+    }
+
+    if (!this.cardDataCache[cardName][set]) {
+      this.cardDataCache[cardName][set] = await this.getScryfallCardData(cardName, set);
+    }
+
+    newCard.data = this.cardDataCache[cardName][set];
     return newCard;
   }
-  
-  async getCardDataAsync(cardName) {
-    const url = `https://api.scryfall.com/cards/named?exact=${encodeURI(cardName)}`;
+
+  async getScryfallCardData(cardName, set = '') {
+    const url = `https://api.scryfall.com/cards/named?exact=${encodeURI(cardName)}&set=${set}`;
     const response = await fetch(url);
     var cardJson = await response.json();
 
@@ -42,10 +52,16 @@ export default class CardLoader {
         color_pile,
         colors,
         cmc: cardJson['cmc'],
+        imageURL: cardJson['image_uris']['normal']
       }
     } catch (e) {
       console.error(`Error parsing card data: ${e}. Card JSON: ${JSON.stringify(cardJson)}`);
-      throw e;
+      return {
+        color_pile : 'C',
+        colors: 'C',
+        cmc: 0,
+        imageURL: `https://api.scryfall.com/cards/named?format=image&exact=${cardName}`
+      }
     }
   }
 }

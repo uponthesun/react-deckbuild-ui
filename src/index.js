@@ -16,6 +16,7 @@ const CARD_STACKING_OFFSET = 25;
 const NUM_COLS = 8; // TODO: make this consistent with css width
 const INITIAL_CARD_NAMES = ['Battle Hymn', 'Reaper King', 'Death or Glory', 'Mindless Automaton',
                             'Wizard Mentor', 'Crow Storm', "Gaea's Touch"];
+const INITIAL_CARD_ENTRIES = INITIAL_CARD_NAMES.map(name => ({name, quantity: 1, set: ''}));
 
 // Card react component - displays a single draggable card. If you hover over the normal card image, 
 // also displays a larger version next to it.
@@ -27,7 +28,7 @@ function Card(props) {
     })
   });
 
-  const imageURL = `https://api.scryfall.com/cards/named?format=image&exact=${encodeURI(props.card.name)}`;
+  const imageURL = props.card.data ? props.card.data.imageURL : ''
 
   const [hoverVisible, setHoverVisible] = useState(false);
   const hoverVisibility = (hoverVisible && !isDragging) ? 'visible' : 'hidden';
@@ -152,8 +153,8 @@ class TopLevelContainer extends React.Component {
     const cardLoader = new CardLoader();
     this.state = {
       cardLoader: cardLoader,
-      boardState: new BoardState(cardLoader, INITIAL_CARD_NAMES, NUM_COLS),
-      sideboardState: new BoardState(cardLoader, [], 1),
+      boardState: new BoardState(cardLoader, INITIAL_CARD_ENTRIES, NUM_COLS, this),
+      sideboardState: new BoardState(cardLoader, [], 1, this),
     };
   }
   
@@ -161,17 +162,18 @@ class TopLevelContainer extends React.Component {
     board.removeCard(card);
     otherBoard.addCard(card);
     // Hacky way to force everything to re-render; TODO: make board states immutable and directly set the state with new versions
-    this.setState(this.state);
+    this.setState({});
   }
 
-  addLand(landName, count) {
+  async addLand(landName, count) {
     const currentBoard = this.state.boardState;
     const cardLoader = this.state.cardLoader;
-    Array(count).fill(null).forEach(function() {
-      const card = cardLoader.getCardData(landName)
+    for (var _ of Array(count)) {
+      const card = await cardLoader.getCardData(landName)
       currentBoard.addCard(card)
-    });
-    this.setState(this.state);
+    }
+
+    this.setState({});
   }
 
   render() {
