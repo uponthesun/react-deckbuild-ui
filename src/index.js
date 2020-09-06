@@ -165,14 +165,15 @@ class TopLevelContainer extends React.Component {
     this.setState(this.state);
   }
 
-  addLand(landName, count) {
+  async addLand(landName, count) {
     const currentBoard = this.state.boardState;
     const cardLoader = this.state.cardLoader;
-    Array(count).fill(null).forEach(function() {
-      const card = cardLoader.getCardData(landName)
+    for (var _ of Array(count)) {
+      const card = await cardLoader.getCardData(landName)
       currentBoard.addCard(card)
-    });
-    this.setState(this.state);
+    }
+
+    this.setState({});
   }
 
   render() {

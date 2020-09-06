@@ -2,6 +2,7 @@
 export default class CardLoader {
   constructor() {
     this.nextId = 0;
+    this.cardDataCache = {};
   }
 
   async getCardData(cardName, set = '') {
@@ -10,11 +11,20 @@ export default class CardLoader {
       id: this.nextId,
     };
     this.nextId++;   
-    await this.getCardDataAsync(cardName, set).then(data => newCard.data = data);
+
+    if (!this.cardDataCache[cardName]) {
+      this.cardDataCache[cardName] = {};
+    }
+
+    if (!this.cardDataCache[cardName][set]) {
+      this.cardDataCache[cardName][set] = await this.getScryfallCardData(cardName, set);
+    }
+
+    newCard.data = this.cardDataCache[cardName][set];
     return newCard;
   }
 
-  async getCardDataAsync(cardName, set = '') {
+  async getScryfallCardData(cardName, set = '') {
     const url = `https://api.scryfall.com/cards/named?exact=${encodeURI(cardName)}&set=${set}`;
     const response = await fetch(url);
     var cardJson = await response.json();
