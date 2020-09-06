@@ -46,7 +46,12 @@ export default class CardLoader {
       }
     } catch (e) {
       console.error(`Error parsing card data: ${e}. Card JSON: ${JSON.stringify(cardJson)}`);
-      throw e;
+      return {
+        color_pile : 'C'
+        colors: 'C',
+        cmc: 0,
+        imageURL: `https://api.scryfall.com/cards/named?format=image&exact=${cardName}`
+      }
     }
   }
 }
