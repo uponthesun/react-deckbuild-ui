@@ -16,7 +16,7 @@ const CARD_STACKING_OFFSET = 25;
 const NUM_COLS = 8; // TODO: make this consistent with css width
 const INITIAL_CARD_NAMES = ['Battle Hymn', 'Reaper King', 'Death or Glory', 'Mindless Automaton',
                             'Wizard Mentor', 'Crow Storm', "Gaea's Touch"];
-const INITIAL_CARD_INFOS = INITIAL_CARD_NAMES.map(name => ({name, quantity: 1, set: ''}));
+const INITIAL_CARD_ENTRIES = INITIAL_CARD_NAMES.map(name => ({name, quantity: 1, set: ''}));
 
 // Card react component - displays a single draggable card. If you hover over the normal card image, 
 // also displays a larger version next to it.
@@ -153,7 +153,7 @@ class TopLevelContainer extends React.Component {
     const cardLoader = new CardLoader();
     this.state = {
       cardLoader: cardLoader,
-      boardState: new BoardState(cardLoader, INITIAL_CARD_INFOS, NUM_COLS, this),
+      boardState: new BoardState(cardLoader, INITIAL_CARD_ENTRIES, NUM_COLS, this),
       sideboardState: new BoardState(cardLoader, [], 1, this),
     };
   }

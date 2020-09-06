@@ -1,21 +1,19 @@
 // Manages state of a "board". Purely a logical representation, doesn't know about React components.
 export default class BoardState {
-  constructor(cardLoader, cardNames, numCols, parentComponent = null) {
+  // cardEntries - Array of objects with keys: {name, quantity, set}
+  constructor(cardLoader, cardEntries, numCols, parentComponent = null) {
     this.cardLoader = cardLoader;
-    if (!cardNames) {
-      cardNames = [];
-    }
     this.numCols = numCols;
-    this.loadCardPool(cardNames, parentComponent);
+    this.loadCardPool(cardEntries, parentComponent);
   }
 
-  async loadCardPool(cardNames, parentComponent) {
+  async loadCardPool(cardEntries, parentComponent) {
     this.cardColumns = [...Array(this.numCols)].map(_ => []); // Initialize with numCols empty arrays
-    for (var name of cardNames) {
+    for (var entry of cardEntries) {
       // TODO: A major refactor is needed to simplify state management. Not sure how best to it,
       // but one option could be to merge this class with the Board react component. Until then,
       // we need this manual refresh.
-      this.createAndAddCards(name).then(value => {
+      this.createAndAddCards(entry).then(value => {
         if (parentComponent) {
           parentComponent.setState({});
         }
@@ -25,10 +23,10 @@ export default class BoardState {
 
   // Creates a new card object, including initializing it with Scryfall data and a unique ID,
   // and adds it to this board.
-  async createAndAddCards(cardInfo) {
+  async createAndAddCards(cardEntry) {
     var result;
-    for (var n = 0; n < cardInfo.quantity; n++) {
-      const newCard = await this.cardLoader.getCardData(cardInfo.name, cardInfo.set);
+    for (var n = 0; n < cardEntry.quantity; n++) {
+      const newCard = await this.cardLoader.getCardData(cardEntry.name, cardEntry.set);
       newCard.currentBoard = this;
       this.cardColumns[0].push(newCard);
       result = newCard;

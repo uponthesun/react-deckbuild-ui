@@ -41,32 +41,32 @@ class LoadInputButton extends React.Component {
     return {name, quantity, set};
   }
 
-  inputToCardNames(rawInput) {
+  parseInput(rawInput) {
     const lines = rawInput.split("\n").filter(l => l.trim().length > 0);
-    const [maindeckCardNames, sideboardCardNames] = [[], []];
-    var currentSection = maindeckCardNames;
+    const sections = [[], []]; // two sections - maindeck and sideboard
+    var currentSection = sections[0];
 
     for (var line of lines) {
       if (line.includes('Sideboard')) {
-        currentSection = sideboardCardNames;
+        currentSection = sections[1];
         continue;
       }
 
       currentSection.push(this.parseLine(line));
     }
 
-    return [maindeckCardNames, sideboardCardNames];
+    return sections;
   }
 
   load() {
     const rawInput = document.getElementById(this.props.inputElementId).value;
-    const [maindeckCardNames, sideboardCardNames] = this.inputToCardNames(rawInput);
+    const [maindeckCardEntries, sideboardCardEntries] = this.parseInput(rawInput);
 
     const numCols = this.props.topLevelContainer.state.boardState.numCols;
     const cardLoader = this.props.topLevelContainer.state.cardLoader;
     this.props.topLevelContainer.setState({
-      boardState: new BoardState(cardLoader, maindeckCardNames, numCols, this.props.topLevelContainer),
-      sideboardState: new BoardState(cardLoader, sideboardCardNames, 1, this.props.topLevelContainer)
+      boardState: new BoardState(cardLoader, maindeckCardEntries, numCols, this.props.topLevelContainer),
+      sideboardState: new BoardState(cardLoader, sideboardCardEntries, 1, this.props.topLevelContainer)
     });
   }
 
