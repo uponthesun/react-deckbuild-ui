@@ -1,27 +1,36 @@
 // Manages state of a "board". Purely a logical representation, doesn't know about React components.
 export default class BoardState {
-  constructor(cardLoader, cardNames, numCols) {
+  constructor(cardLoader, cardNames, numCols, parentComponent = null) {
     this.cardLoader = cardLoader;
     if (!cardNames) {
       cardNames = [];
     }
     this.numCols = numCols;
-    this.loadCardPool(cardNames);
+    this.loadCardPool(cardNames, parentComponent);
   }
 
-  async loadCardPool(cardNames) {
+  async loadCardPool(cardNames, parentComponent) {
     this.cardColumns = [...Array(this.numCols)].map(_ => []); // Initialize with numCols empty arrays
-    cardNames.forEach(c => this.createAndAddCards(c));
+    for (var name of cardNames) {
+      this.createAndAddCards(name).then(value => {
+        if (parentComponent) {
+          parentComponent.setState({});
+        }
+      })
+    }
   }
 
   // Creates a new card object, including initializing it with Scryfall data and a unique ID,
   // and adds it to this board.
   async createAndAddCards(cardInfo) {
+    var result;
     for (var n = 0; n < cardInfo.quantity; n++) {
-      const newCard = this.cardLoader.getCardData(cardInfo.name, cardInfo.set);
+      const newCard = await this.cardLoader.getCardData(cardInfo.name, cardInfo.set);
       newCard.currentBoard = this;
       this.cardColumns[0].push(newCard);
+      result = newCard;
     }
+    return result;
   }
 
   // Adds the given card object to this board. Does not create a new card object.

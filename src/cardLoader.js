@@ -4,13 +4,13 @@ export default class CardLoader {
     this.nextId = 0;
   }
 
-  getCardData(cardName, set = '') {
+  async getCardData(cardName, set = '') {
     const newCard = {
       name: cardName,
       id: this.nextId,
     };
     this.nextId++;   
-    this.getCardDataAsync(cardName, set).then(data => newCard.data = data);
+    await this.getCardDataAsync(cardName, set).then(data => newCard.data = data);
     return newCard;
   }
 
@@ -42,6 +42,7 @@ export default class CardLoader {
         color_pile,
         colors,
         cmc: cardJson['cmc'],
+        imageURL: cardJson['image_uris']['normal']
       }
     } catch (e) {
       console.error(`Error parsing card data: ${e}. Card JSON: ${JSON.stringify(cardJson)}`);
