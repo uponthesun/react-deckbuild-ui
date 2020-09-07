@@ -72,6 +72,10 @@ export default class BoardState {
     return this.cardColumns.flat().length;
   }
 
+  getCards() {
+    return this.cardColumns.flat();
+  }
+
   sortByCmc() {
     const newCardColumns = [...Array(this.numCols)].map(_ => []);
 
