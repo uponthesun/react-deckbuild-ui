@@ -8,6 +8,7 @@ import BoardState from './boardState.js';
 import { CardPoolInput, LoadInputButton, ExportButton } from './importExport.js';
 import { LandAdder } from './landAdder.js';
 import CardLoader from './cardLoader.js';
+import SampleHandModalButton from './sampleHand.js';
 
 const IMG_WIDTH = 146;
 const IMG_HEIGHT = 204;
@@ -184,7 +185,7 @@ class TopLevelContainer extends React.Component {
     const moveCardToMainboard = (card) => {
       this.moveCardToOtherBoard(card, this.state.sideboardState, this.state.boardState);
     }
-    
+
     return (
       <div>
         <Board boardState={this.state.boardState} moveCardToOtherBoard={moveCardToSideboard} />
@@ -194,6 +195,7 @@ class TopLevelContainer extends React.Component {
         <SortByCmcButton topLevelContainer={this} />
         <SortByColorButton topLevelContainer={this} />
         <ExportButton boardState={this.state.boardState} sideboardState={this.state.sideboardState} />
+        <SampleHandModalButton maindeckBoardState={this.state.boardState} />
         <LandAdder addLand={(land, count) => this.addLand(land, count)}/>
         <Instructions />
       </div>
