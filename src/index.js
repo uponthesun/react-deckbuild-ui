@@ -5,7 +5,7 @@ import { DndProvider } from 'react-dnd';
 import { useDrag, useDrop } from 'react-dnd'
 import './index.css';
 import BoardState from './boardState.js';
-import { CardPoolInput, LoadInputButton, ExportButton } from './importExport.js';
+import { CardPoolInput, LoadInputButton, ExportButton, SaveLinkButton, parseCardPoolText } from './importExport.js';
 import { LandAdder } from './landAdder.js';
 import CardLoader from './cardLoader.js';
 import SampleHandModalButton from './sampleHand.js';
@@ -15,9 +15,8 @@ const IMG_HEIGHT = 204;
 const COL_WIDTH = IMG_WIDTH + 1;
 const CARD_STACKING_OFFSET = 25;
 const NUM_COLS = 8; // TODO: make this consistent with css width
-const INITIAL_CARD_NAMES = ['Battle Hymn', 'Reaper King', 'Death or Glory', 'Mindless Automaton',
-                            'Wizard Mentor', 'Crow Storm', "Gaea's Touch"];
-const INITIAL_CARD_ENTRIES = INITIAL_CARD_NAMES.map(name => ({name, quantity: 1, set: ''}));
+const DEFAULT_INITIAL_CARDS = ['Battle Hymn', 'Reaper King', 'Death or Glory', 'Mindless Automaton',
+                               'Wizard Mentor', 'Crow Storm', "Gaea's Touch"].join("\n");
 
 // Card react component - displays a single draggable card. If you hover over the normal card image, 
 // also displays a larger version next to it.
@@ -146,16 +145,22 @@ function Instructions (props) {
   );
 }
 
+const initialCards = () => {
+  const encodedCardsFromParams = new URLSearchParams(window.location.search).get("cards");
+  return encodedCardsFromParams ? window.atob(encodedCardsFromParams) : DEFAULT_INITIAL_CARDS
+}
+
 // Top-level container component to put everything together
 class TopLevelContainer extends React.Component {
   constructor(props) {
     super(props);
 
     const cardLoader = new CardLoader();
+    const [maindeckCardEntries, sideboardCardEntries] = parseCardPoolText(initialCards());
     this.state = {
       cardLoader: cardLoader,
-      boardState: new BoardState(cardLoader, INITIAL_CARD_ENTRIES, NUM_COLS, this),
-      sideboardState: new BoardState(cardLoader, [], 1, this),
+      boardState: new BoardState(cardLoader, maindeckCardEntries, NUM_COLS, this),
+      sideboardState: new BoardState(cardLoader, sideboardCardEntries, 1, this),
     };
   }
   
@@ -195,6 +200,7 @@ class TopLevelContainer extends React.Component {
         <SortByCmcButton topLevelContainer={this} />
         <SortByColorButton topLevelContainer={this} />
         <ExportButton boardState={this.state.boardState} sideboardState={this.state.sideboardState} />
+        <SaveLinkButton boardState={this.state.boardState} sideboardState={this.state.sideboardState} />
         <SampleHandModalButton maindeckBoardState={this.state.boardState} />
         <LandAdder addLand={(land, count) => this.addLand(land, count)}/>
         <Instructions />

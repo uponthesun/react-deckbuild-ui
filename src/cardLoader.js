@@ -8,6 +8,7 @@ export default class CardLoader {
   async getCardData(cardName, set = '') {
     const newCard = {
       name: cardName,
+      set: set,
       id: this.nextId,
     };
     this.nextId++;   
