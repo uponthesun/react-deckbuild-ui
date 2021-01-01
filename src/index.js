@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import Backend from 'react-dnd-html5-backend';
-import { DndProvider } from 'react-dnd';
+import { DndProvider } from 'react-dnd-multi-backend';
+import HTML5toTouch from 'react-dnd-multi-backend/dist/esm/HTML5toTouch';
 import { useDrag, useDrop } from 'react-dnd'
 import './index.css';
 import BoardState from './boardState.js';
@@ -210,7 +210,7 @@ class TopLevelContainer extends React.Component {
 }
 
 ReactDOM.render(
-  <DndProvider backend={Backend}>
+  <DndProvider options={HTML5toTouch}>
     <TopLevelContainer />
   </DndProvider>,
   document.getElementById('root')
