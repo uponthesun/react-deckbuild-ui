@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import Backend from 'react-dnd-html5-backend';
-import { DndProvider } from 'react-dnd';
+import { DndProvider } from 'react-dnd-multi-backend';
+import HTML5toTouch from 'react-dnd-multi-backend/dist/esm/HTML5toTouch';
 import { useDrag, useDrop } from 'react-dnd'
 import './index.css';
 import BoardState from './boardState.js';
@@ -39,7 +39,7 @@ function Card(props) {
       <img
         ref={drag}
         src={imageURL} width={IMG_WIDTH} height={IMG_HEIGHT}
-        onDoubleClick={() => props.moveCardToOtherBoard(props.card)}
+        onClick={() => props.moveCardToOtherBoard(props.card)}
         // We use onMouseMove here instead of onMouseOver because apparently onMouseOver will fire after
         // you drag and drop the top card of a stack, leading to weird behavior.
         onMouseMove={(e) => !hoverVisible && setHoverVisible(true)}
@@ -134,13 +134,14 @@ function Instructions (props) {
     <div  style={{float: 'right'}}>
       Large space is the maindeck, smaller space is the sideboard. <br />
       Drag and drop to move cards around. <br />
-      Double-click a card to move it from the maindeck to sideboard or vice versa. <br />
+      Click a card to move it from the maindeck to sideboard or vice versa. <br />
       Multiple formats are supported for "Load cards", including MTG Arena. <br />
       Valid example lines: <br />
       Wizard Mentor <br />
       1 Battle Hymn <br />
       5 Forest <br />
-      1 Cogwork Assembler (AER) 145
+      1 Cogwork Assembler (AER) 145 <br />
+      1 Songs of the Damned (ME2)
     </div>
   );
 }
@@ -210,7 +211,7 @@ class TopLevelContainer extends React.Component {
 }
 
 ReactDOM.render(
-  <DndProvider backend={Backend}>
+  <DndProvider options={HTML5toTouch}>
     <TopLevelContainer />
   </DndProvider>,
   document.getElementById('root')
