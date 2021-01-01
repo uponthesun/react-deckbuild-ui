@@ -129,6 +129,14 @@ function SortByColorButton (props) {
   );
 }
 
+function SortByTypeButton (props) {
+  return (
+    <input type="button"
+      onClick={() => props.topLevelContainer.setState({boardState: props.topLevelContainer.state.boardState.sortByType()})}
+      value="Sort by Type" />
+  );
+}
+
 // Instructions component
 function Instructions (props) {
   return (
@@ -194,6 +202,7 @@ class TopLevelContainer extends React.Component {
         <LoadInputButton inputElementId={CARD_POOL_INPUT_ELEMENT_ID} topLevelContainer={this} />
         <SortByCmcButton topLevelContainer={this} />
         <SortByColorButton topLevelContainer={this} />
+        <SortByTypeButton topLevelContainer={this} />
         <ExportButton boardState={this.state.boardState} sideboardState={this.state.sideboardState} />
         <SampleHandModalButton maindeckBoardState={this.state.boardState} />
         <LandAdder addLand={(land, count) => this.addLand(land, count)}/>

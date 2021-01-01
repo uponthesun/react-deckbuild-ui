@@ -48,11 +48,14 @@ export default class CardLoader {
         color_pile = 'L';
       }
       
+      const types = cardJson['type_line'].split('—')[0].trim();
+
       return {
         color_pile,
         colors,
         cmc: cardJson['cmc'],
-        imageURL: cardJson['image_uris']['normal']
+        imageURL: cardJson['image_uris']['normal'],
+        types
       }
     } catch (e) {
       console.error(`Error parsing card data: ${e}. Card JSON: ${JSON.stringify(cardJson)}`);
@@ -60,7 +63,8 @@ export default class CardLoader {
         color_pile : 'C',
         colors: 'C',
         cmc: 0,
-        imageURL: `https://api.scryfall.com/cards/named?format=image&exact=${cardName}`
+        imageURL: `https://api.scryfall.com/cards/named?format=image&exact=${cardName}`,
+        types: new Set()
       }
     }
   }

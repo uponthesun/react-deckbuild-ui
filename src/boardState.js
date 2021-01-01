@@ -69,7 +69,7 @@ export default class BoardState {
   }
 
   numCards() {
-    return this.cardColumns.flat().length;
+    return this.getCards().length;
   }
 
   getCards() {
@@ -79,7 +79,7 @@ export default class BoardState {
   sortByCmc() {
     const newCardColumns = [...Array(this.numCols)].map(_ => []);
 
-    for (var card of this.cardColumns.flat()) {
+    for (var card of this.getCards()) {
       const col = Math.min(card.data.cmc, 7); // everything CMC 7 and up goes in one pile
       newCardColumns[col].push(card);
     }
@@ -93,12 +93,27 @@ export default class BoardState {
 
     const colorColumns = ['L', 'W', 'U', 'B', 'R', 'G', 'C', 'M'];
 
-    const monocolorCards = this.cardColumns.flat().filter(c => c.data.color_pile !== 'M');
-    const multicolorCards = this.cardColumns.flat().filter(c => c.data.color_pile === 'M');
+    const monocolorCards = this.getCards().filter(c => c.data.color_pile !== 'M');
+    const multicolorCards = this.getCards().filter(c => c.data.color_pile === 'M');
     multicolorCards.sort((c1, c2) => c1.data.colors.localeCompare(c2.data.colors));
 
     for (var card of [...monocolorCards, ...multicolorCards]) {
       const col = colorColumns.indexOf(card.data.color_pile);
+      newCardColumns[col].push(card);
+    }
+
+    this.cardColumns = newCardColumns;
+    return this;
+  }
+
+  sortByType() {
+    const newCardColumns = [...Array(this.numCols)].map(_ => []);
+
+    const cards = this.getCards();
+    const typeColumns = Array.from(new Set(cards.map(c => c.data.types)));
+
+    for (var card of cards) {
+      const col = Math.min(typeColumns.indexOf(card.data.types), this.numCols - 1);
       newCardColumns[col].push(card);
     }
 
