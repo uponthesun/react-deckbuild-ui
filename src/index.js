@@ -196,7 +196,7 @@ class TopLevelContainer extends React.Component {
       <div>
         <Board boardState={this.state.boardState} moveCardToOtherBoard={moveCardToSideboard} />
         <Board boardState={this.state.sideboardState} moveCardToOtherBoard={moveCardToMainboard} />
-        <CardPoolInput id={CARD_POOL_INPUT_ELEMENT_ID} />
+        <CardPoolInput id={CARD_POOL_INPUT_ELEMENT_ID} initialText={initialCards()} />
         <LoadInputButton inputElementId={CARD_POOL_INPUT_ELEMENT_ID} topLevelContainer={this} />
         <SortByCmcButton topLevelContainer={this} />
         <SortByColorButton topLevelContainer={this} />

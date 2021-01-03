@@ -6,7 +6,7 @@ import BoardState from './boardState.js';
 // Card pool input components
 const CardPoolInput = function (props) {
   return (
-    <textarea id={props.id} rows="5" cols="33"></textarea>
+    <textarea id={props.id} rows="5" cols="33">{props.initialText}</textarea>
   );
 }
 
