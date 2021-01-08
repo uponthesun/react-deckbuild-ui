@@ -83,6 +83,9 @@ export default class BoardState {
       const col = Math.min(card.data.cmc, 7); // everything CMC 7 and up goes in one pile
       newCardColumns[col].push(card);
     }
+    for (var column of newCardColumns) {
+      column.sort((c1, c2) => c1.name.localeCompare(c2.name))
+    }
 
     this.cardColumns = newCardColumns;
     return this;
@@ -100,6 +103,9 @@ export default class BoardState {
     for (var card of [...monocolorCards, ...multicolorCards]) {
       const col = colorColumns.indexOf(card.data.color_pile);
       newCardColumns[col].push(card);
+    }
+    for (var column of newCardColumns) {
+      column.sort((c1, c2) => c1.name.localeCompare(c2.name))
     }
 
     this.cardColumns = newCardColumns;
