@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/react-deckbuild-ui/static/css/main.9ea0f271.chunk.css",
-    "main.js": "/react-deckbuild-ui/static/js/main.9cc34ae3.chunk.js",
-    "main.js.map": "/react-deckbuild-ui/static/js/main.9cc34ae3.chunk.js.map",
+    "main.js": "/react-deckbuild-ui/static/js/main.4750beb1.chunk.js",
+    "main.js.map": "/react-deckbuild-ui/static/js/main.4750beb1.chunk.js.map",
     "runtime-main.js": "/react-deckbuild-ui/static/js/runtime-main.3af1b9fc.js",
     "runtime-main.js.map": "/react-deckbuild-ui/static/js/runtime-main.3af1b9fc.js.map",
     "static/js/2.5ffec818.chunk.js": "/react-deckbuild-ui/static/js/2.5ffec818.chunk.js",
     "static/js/2.5ffec818.chunk.js.map": "/react-deckbuild-ui/static/js/2.5ffec818.chunk.js.map",
     "index.html": "/react-deckbuild-ui/index.html",
-    "precache-manifest.442ea0f9cf1ba655a1e5e1aeb261a275.js": "/react-deckbuild-ui/precache-manifest.442ea0f9cf1ba655a1e5e1aeb261a275.js",
+    "precache-manifest.85def21ebe91d5b5113299f2dbd2f05a.js": "/react-deckbuild-ui/precache-manifest.85def21ebe91d5b5113299f2dbd2f05a.js",
     "service-worker.js": "/react-deckbuild-ui/service-worker.js",
     "static/css/main.9ea0f271.chunk.css.map": "/react-deckbuild-ui/static/css/main.9ea0f271.chunk.css.map",
     "static/js/2.5ffec818.chunk.js.LICENSE.txt": "/react-deckbuild-ui/static/js/2.5ffec818.chunk.js.LICENSE.txt"
@@ -17,6 +17,6 @@
     "static/js/runtime-main.3af1b9fc.js",
     "static/js/2.5ffec818.chunk.js",
     "static/css/main.9ea0f271.chunk.css",
-    "static/js/main.9cc34ae3.chunk.js"
+    "static/js/main.4750beb1.chunk.js"
   ]
 }
