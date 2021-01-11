@@ -78,17 +78,9 @@ class LoadInputButton extends React.Component {
 }
 
 const cardPoolToText = (maindeck, sideboard, includeSet) => {
-  const cardToLine = (c) => {
-    var line = c.name;
-    if (includeSet && c.set) {
-      line += ` (${c.set})`
-    }
-    return line;
-  };
-
-  return maindeck.cardColumns.flat().map(card => cardToLine(card)).join("\n") +
+  return maindeck.asText(includeSet) +
     "\n\n// Sideboard\n" +
-    sideboard.cardColumns.flat().map(card => cardToLine(card)).join("\n");
+    sideboard.asText(includeSet);
 }
 
 // Export button components

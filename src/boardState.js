@@ -111,5 +111,26 @@ export default class BoardState {
     this.cardColumns = newCardColumns;
     return this;
   }
+
+  asText(includeSet) {
+    const cardToText = (c) => {
+      var line = c.name;
+      if (includeSet && c.set) {
+        line += ` (${c.set})`
+      }
+      return line;
+    };
+
+    const counts = {};
+    for (var card of this.cardColumns.flat()) {
+      const cardAsText = cardToText(card);
+      if (!counts.hasOwnProperty(cardAsText)) {
+        counts[cardAsText] = 0;
+      }
+      counts[cardAsText]++;
+    }
+
+    return Object.entries(counts).map(entry => `${entry[1]} ${entry[0]}`).join("\n");
+  }
 }
 
