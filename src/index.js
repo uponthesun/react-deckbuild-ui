@@ -172,11 +172,11 @@ class TopLevelContainer extends React.Component {
     this.setState({});
   }
 
-  async addLand(landName, count) {
+  async addLand(landName, count, set='') {
     const currentBoard = this.state.boardState;
     const cardLoader = this.state.cardLoader;
     for (var _ of Array(count)) {
-      const card = await cardLoader.getCardData(landName)
+      const card = await cardLoader.getCardData(landName, set)
       currentBoard.addCard(card)
     }
 
@@ -203,7 +203,7 @@ class TopLevelContainer extends React.Component {
         <ExportButton boardState={this.state.boardState} sideboardState={this.state.sideboardState} />
         <SaveLinkButton boardState={this.state.boardState} sideboardState={this.state.sideboardState} />
         <SampleHandModalButton maindeckBoardState={this.state.boardState} />
-        <LandAdder addLand={(land, count) => this.addLand(land, count)}/>
+        <LandAdder addLand={(land, count, set) => this.addLand(land, count, set)}/>
         <Instructions />
       </div>
     );

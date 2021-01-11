@@ -77,13 +77,13 @@ class LoadInputButton extends React.Component {
   }
 }
 
-// Export button components
-const toCockatriceFormat = (maindeck, sideboard) => {
-  return maindeck.map(c => c.name).join("\n") +
+const cardPoolToText = (maindeck, sideboard, includeSet) => {
+  return maindeck.asText(includeSet) +
     "\n\n// Sideboard\n" +
-    sideboard.map(c => c.name).join("\n");
+    sideboard.asText(includeSet);
 }
 
+// Export button components
 const writeToClipboardAndAlert = (text) => {
   navigator.clipboard.writeText(text)
     .then(() => alert(`Copied to clipboard:\n\n${text}`),
@@ -94,7 +94,7 @@ const ExportButton = function (props) {
   return (
     <input type="button"
       onClick={() => {
-        const output = toCockatriceFormat(props.boardState.cardColumns.flat(), props.sideboardState.cardColumns.flat());
+        const output = cardPoolToText(props.boardState, props.sideboardState, false);
         writeToClipboardAndAlert(output);
       }}
       value="Export to Cockatrice" />
@@ -102,27 +102,11 @@ const ExportButton = function (props) {
 }
 
 // Copy link button components
-
-const encodeCards = (maindeck, sideboard) => {
-  const cardToLine = (c) => {
-    var line = c.name;
-    if (c.set) {
-      line += `(${c.set})`
-    }
-    return line;
-  };
-
-  const cardPoolText = maindeck.map(card => cardToLine(card)).join("\n") +
-    "\n\n// Sideboard\n" +
-    sideboard.map(card => cardToLine(card)).join("\n");
-  return window.btoa(cardPoolText);
-}
-
 const SaveLinkButton = function (props) {
   return (
     <input type="button"
       onClick={() => {
-        const encoded = encodeCards(props.boardState.cardColumns.flat(), props.sideboardState.cardColumns.flat());
+        const encoded = window.btoa(cardPoolToText(props.boardState, props.sideboardState, true));
         window.history.replaceState({}, '', `?cards=${encoded}`);
         writeToClipboardAndAlert(window.location.href);
       }}
