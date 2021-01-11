@@ -25,7 +25,7 @@ function LandAdder(props) {
         onClick={() => {
           const land = document.getElementById(selectorId).value;
           const count = parseInt(document.getElementById(inputCountId).value) || 1;
-          props.addLand(land, count)
+          props.addLand(land, count, 'ICE')
         }}
         value='Add Basic Lands'
       />

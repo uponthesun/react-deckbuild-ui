@@ -107,7 +107,7 @@ const encodeCards = (maindeck, sideboard) => {
   const cardToLine = (c) => {
     var line = c.name;
     if (c.set) {
-      line += `(${c.set})`
+      line += ` (${c.set})`
     }
     return line;
   };
