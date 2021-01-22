@@ -54,14 +54,25 @@ const IMG_HEIGHT = 204;
 class SampleHandModalContent extends React.Component {
   constructor (props) {
     super(props);
-    this.state = this.getNewHandState();
+    this.state = {
+      ...this.getNewHandState(),
+      lockedCard: ""
+    };
   }
 
   getNewHandState() {
     const shuffledDeck = shuffle(this.props.maindeckBoardState.getCards());
     const hand = []
 
-    const numCardsToDraw = Math.min(HAND_SIZE, shuffledDeck.length);
+    if (this.state && !!this.state.lockedCard) {
+      // If a card is selected to be locked into your opening hand,
+      // find it and add it to the hand first.
+      const i = shuffledDeck.findIndex(card => card.name == this.state.lockedCard);
+      hand.push(shuffledDeck[i]);
+      shuffledDeck.splice(i, 1);
+    }
+
+    const numCardsToDraw = Math.min(HAND_SIZE - hand.length, shuffledDeck.length);
     for (var _ of Array(numCardsToDraw)) {
       hand.push(shuffledDeck.pop());
     }
@@ -76,14 +87,24 @@ class SampleHandModalContent extends React.Component {
     }
   }
 
+  handleChange(e) {
+    this.setState({lockedCard: e.target.value});
+  }
+
   render () {
     const cardImageURLs = this.state.hand.map(card => card.data.imageURL);
     const images = cardImageURLs.map(url => <img src={url} width={IMG_WIDTH} height={IMG_HEIGHT} />);
+    const dedupedCardNames = Array.from(new Set(this.props.maindeckBoardState.getCards().map(card => card.name))).sort();
+    const options = dedupedCardNames.map(name => <option value={name}>{name}</option>);
 
     return (
       <>
         <button onClick={() => this.drawCard()}>Draw card</button>
         <button onClick={() => this.setState(this.getNewHandState())}>New hand</button>
+        <select id="reserved-card-select" onChange={(e) => this.handleChange(e)} tabindex="-1">
+          <option value="">-- Lock a card into opening hand --</option>
+          {options}
+        </select>
         <div>
           {images}
         </div>
