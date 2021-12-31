@@ -53,7 +53,8 @@ export default class CardLoader {
         color_pile,
         colors,
         cmc: cardJson['cmc'],
-        imageURL: cardJson['image_uris']['normal']
+        imageURL: cardJson['image_uris']['normal'],
+        mana_cost: cardJson['mana_cost'],
       }
     } catch (e) {
       console.error(`Error parsing card data: ${e}. Card JSON: ${JSON.stringify(cardJson)}`);

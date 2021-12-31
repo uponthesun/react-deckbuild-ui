@@ -80,7 +80,18 @@ export default class BoardState {
     const newCardColumns = [...Array(this.numCols)].map(_ => []);
 
     for (var card of this.cardColumns.flat()) {
-      const col = Math.min(card.data.cmc, 7); // everything CMC 7 and up goes in one pile
+      var col = card.data.cmc;
+      if (card.data.mana_cost.includes('{X}')) {
+        // Assume each X must be at least 1
+        const numXes = (card.data.mana_cost.split('{X}').length - 1)
+        col += numXes;
+      }
+      if (col === 0 && card.data.color_pile !== 'L') {
+        // nonland 0-drops should be in 1-drop column
+        col = 1;
+      }
+      col = Math.min(col, 7); // everything CMC 7 and up goes in one pile
+
       newCardColumns[col].push(card);
     }
     for (var column of newCardColumns) {
